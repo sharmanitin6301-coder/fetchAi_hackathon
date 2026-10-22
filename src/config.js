@@ -9,6 +9,12 @@ export async function loadConfig() {
     geminiModel: process.env.GEMINI_MODEL?.trim() || '',
     groqApiKey: process.env.GROQ_API_KEY?.trim() || '',
     groqModel: process.env.GROQ_MODEL?.trim() || '',
+    openrouterApiKey: process.env.OPENROUTER_API_KEY?.trim() || '',
+    openrouterModel: process.env.OPENROUTER_MODEL?.trim() || '',
+    providerOrder: (process.env.LLM_PROVIDER_ORDER || 'groq,gemini,openrouter')
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean),
     port: parseInt(process.env.PORT || '3000', 10),
   };
 }
@@ -43,6 +49,18 @@ export async function validateLLMConfig(provider = 'gemini') {
     };
   }
 
+  if (provider === 'openrouter') {
+    const hasKey = Boolean(config.openrouterApiKey);
+    return {
+      provider: 'openrouter',
+      ready: hasKey,
+      hasKey,
+      hasModel: Boolean(config.openrouterModel),
+      model: config.openrouterModel || 'openai/gpt-4o-mini',
+      missing: [!hasKey && 'OPENROUTER_API_KEY'].filter(Boolean),
+    };
+  }
+
   throw new Error(`Unsupported LLM provider: ${provider}`);
 }
 
@@ -51,9 +69,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const config = await loadConfig();
   const geminiCheck = await validateLLMConfig('gemini');
   const groqCheck = await validateLLMConfig('groq');
+  const openrouterCheck = await validateLLMConfig('openrouter');
 
   console.log('--- AccessFix Config Check ---');
-  console.log('Gemini:', geminiCheck.ready ? `Ready (${geminiCheck.model})` : `Incomplete: missing ${geminiCheck.missing.join(', ')}`);
-  console.log('Groq:  ', groqCheck.ready ? `Ready (${groqCheck.model})` : `Incomplete: missing ${groqCheck.missing.join(', ')}`);
-  console.log('Port:  ', config.port);
+  console.log('Provider Order:', config.providerOrder.join(', '));
+  console.log('Gemini:    ', geminiCheck.ready ? `Ready (${geminiCheck.model})` : `Incomplete: missing ${geminiCheck.missing.join(', ')}`);
+  console.log('Groq:      ', groqCheck.ready ? `Ready (${groqCheck.model})` : `Incomplete: missing ${groqCheck.missing.join(', ')}`);
+  console.log('OpenRouter:', openrouterCheck.ready ? `Ready (${openrouterCheck.model})` : `Incomplete: missing ${openrouterCheck.missing.join(', ')}`);
+  console.log('Port:      ', config.port);
 }

@@ -151,14 +151,10 @@ Return JSON ONLY matching:
   "action": "<one of the allowed action strings>"
 }`;
 
-  const geminiCheck = await validateLLMConfig('gemini');
-  const provider = geminiCheck.ready ? 'gemini' : 'groq';
-
   try {
     const response = await callLLM({
       prompt,
       systemPrompt: 'You are an accessibility blind agent navigating strictly by keyboard. Output JSON only: {heard, thought, action}.',
-      provider,
     });
 
     return {
@@ -218,7 +214,7 @@ export async function runBlindAgent(page, task, options = {}) {
   const hasKey = geminiCheck.hasKey || groqCheck.hasKey;
   let forceScripted = Boolean(options.scriptedMode || !hasKey);
 
-  const siteKey = siteName.includes('fixed') ? 'fixed' : 'broken';
+  const siteKey = (siteName.includes('fixed') || runType === 'after') ? 'fixed' : 'broken';
   const transcript = [];
   const focusCounts = {};
   let stuckAt = null;

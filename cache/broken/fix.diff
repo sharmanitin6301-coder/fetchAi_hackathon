@@ -1,0 +1,97 @@
+===================================================================
+--- broken.html (original)	Original
++++ patched.html (AccessFix)	Patched
+@@ -1,8 +1,5 @@
+-<!DOCTYPE html>
+-<!-- BUG 6: Missing lang attribute on html, missing main and nav landmarks, and h4 directly after h1 -->
+-<html>
+-<head>
++<!DOCTYPE html><!-- BUG 6: Missing lang attribute on html, missing main and nav landmarks, and h4 directly after h1 --><html lang="en"><head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Brew &amp; Bean Weekly</title>
+   <style>
+@@ -130,55 +127,59 @@
+       font-size: 15px;
+       text-align: center;
+     }
+   </style>
+-</head>
++<style id="accessfix-focus-styles">
++:focus-visible { outline: 3px solid #1a5fb4 !important; outline-offset: 2px !important; }
++</style><style id="accessfix-style-rules">
++.helper-text { color: #747474 !important; }
++</style></head>
+ <body>
+-  <div id="promoBanner" class="promo-banner">
++  <aside id="promoBanner" class="promo-banner">
+     <span>Special edition: The Ethiopian Yirgacheffe Guide is out!</span>
+     <!-- BUG 2: A nameless icon-only button (an SVG "X" with no aria-label or text) that closes a promo banner. Placed before the form in tab order -->
+-    <button class="banner-close" onclick="document.getElementById('promoBanner').style.display='none'">
++    <button class="banner-close" onclick="document.getElementById('promoBanner').style.display='none'" aria-label="Close promo banner">
+       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+         <line x1="18" y1="6" x2="6" y2="18"></line>
+         <line x1="6" y1="6" x2="18" y2="18"></line>
+       </svg>
+     </button>
+-  </div>
++  </aside>
+ 
+-  <div class="header-bar">
++  <header class="header-bar">
+     <div class="brand">Brew &amp; Bean</div>
+-  </div>
++  </header>
+ 
+-  <div class="container">
++  <main class="container">
+     <div class="hero-container">
+       <!-- BUG 1: Hero img with no alt attribute -->
+-      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='220' viewBox='0 0 600 220'><rect width='600' height='220' fill='%23fed7aa'/><circle cx='300' cy='110' r='60' fill='%239a3412'/><path d='M280 85 C280 75 320 75 320 85 C320 95 280 100 280 110' stroke='%23ffffff' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M260 110 C260 145 340 145 340 110 Z' fill='%23ffffff'/></svg>">
++      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='220' viewBox='0 0 600 220'><rect width='600' height='220' fill='%23fed7aa'/><circle cx='300' cy='110' r='60' fill='%239a3412'/><path d='M280 85 C280 75 320 75 320 85 C320 95 280 100 280 110' stroke='%23ffffff' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M260 110 C260 145 340 145 340 110 Z' fill='%23ffffff'/></svg>" alt="Fresh cup of artisanal coffee with rising steam on warm background">
+     </div>
+ 
+     <div class="content">
+       <h1>Brew &amp; Bean Weekly</h1>
+       <!-- BUG 6 continued: h4 straight after h1, skipping h2 and h3 -->
+-      <h4>Your artisanal roast digest delivered every Monday</h4>
++      <h2>Your artisanal roast digest delivered every Monday</h2>
+ 
+       <div class="newsletter-form">
+         <div class="form-group">
+           <!-- BUG 3: Email input with no label, only a placeholder -->
+-          <input type="email" id="emailInput" placeholder="Enter your email address">
++          <label for="emailInput" class="form-label" style="display:block;margin-bottom:6px;font-weight:600;font-size:14px;color:#27272a;">Email address</label><input type="email" id="emailInput" placeholder="Enter your email address">
+           <!-- BUG 4 continued: helper paragraph in light grey #aaa on white background -->
+           <p class="helper-text">We curate stories, never spam. Unsubscribe anytime with one click.</p>
+         </div>
+ 
+         <!-- BUG 5 continued: real Subscribe control is a div with onclick, not focusable, outline:none in CSS -->
+-        <div class="btn-subscribe" onclick="handleSubscribe()">
++        <button class="btn-subscribe" onclick="handleSubscribe()" type="button">
+           Subscribe
+-        </div>
++        </button>
+       </div>
+ 
+       <div id="statusMessage" class="success-message">
+         Thanks for subscribing
+       </div>
+     </div>
+-  </div>
++  </main>
+ 
+   <script>
+     function handleSubscribe() {
+       const email = document.getElementById('emailInput').value.trim();
+@@ -186,6 +187,7 @@
+       status.textContent = 'Thanks for subscribing';
+       status.style.display = 'block';
+     }
+   </script>
+-</body>
+-</html>
++
++
++</body></html>
+\ No newline at end of file

@@ -10,7 +10,7 @@ import { resolveTargetUrl } from './scanner.js';
 // Infers the primary goal on a page from its title and accessibility tree, or reads demo-sites/tasks.json
 export async function findTask(pageTitle, ariaTree, sitePath = '') {
   // For demo sites, return deterministic benchmark task without LLM call
-  if (sitePath && sitePath.includes('demo-sites')) {
+  if (sitePath && (sitePath.includes('demo-sites') || sitePath.includes('broken') || sitePath.includes('fixed'))) {
     const tasksFilePath = path.resolve('demo-sites', 'tasks.json');
     const raw = await fs.readFile(tasksFilePath, 'utf-8');
     return JSON.parse(raw);
@@ -19,18 +19,17 @@ export async function findTask(pageTitle, ariaTree, sitePath = '') {
   // Verify that an API key is available before making external LLM call
   const geminiCheck = await validateLLMConfig('gemini');
   const groqCheck = await validateLLMConfig('groq');
+  const openrouterCheck = await validateLLMConfig('openrouter');
 
-  if (!geminiCheck.hasKey && !groqCheck.hasKey) {
-    throw new Error('Cannot find task: No LLM API key configured in .env (set GEMINI_API_KEY or GROQ_API_KEY).');
+  if (!geminiCheck.hasKey && !groqCheck.hasKey && !openrouterCheck.hasKey) {
+    throw new Error('Cannot find task: No LLM API key configured in .env (set GEMINI_API_KEY, GROQ_API_KEY, or OPENROUTER_API_KEY).');
   }
 
   const prompt = `You are given a web page's title and its accessibility tree. Pick the ONE most important task a visitor comes to this page to do. Return JSON only: {task, hint, success:{type, value}}. success.type must be textVisible, urlContains or elementVisible, and must be checkable by a browser script after the task is done. Page title: ${pageTitle}. Accessibility tree: ${ariaTree}`;
 
-  const provider = geminiCheck.ready ? 'gemini' : 'groq';
   return await callLLM({
     prompt,
     systemPrompt: 'Respond strictly with valid JSON conforming to {task, hint, success:{type, value}}.',
-    provider,
   });
 }
 

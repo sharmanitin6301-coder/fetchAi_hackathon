@@ -1,0 +1,563 @@
+{
+  "site": "broken",
+  "stage": "before",
+  "timestamp": "2026-10-22T21:53:08.666Z",
+  "data": {
+    "siteName": "broken",
+    "url": "file:///Users/nitinsharma/Downloads/fetch ai hackathon/demo-sites/broken.html",
+    "scannedAt": "2026-10-22T21:53:08.666Z",
+    "axeSummary": {
+      "totalViolations": 7,
+      "byImpact": {
+        "critical": 2,
+        "serious": 2,
+        "moderate": 3,
+        "minor": 0
+      }
+    },
+    "axeViolations": [
+      {
+        "id": "button-name",
+        "impact": "critical",
+        "tags": [
+          "wcag2a",
+          "wcag412"
+        ],
+        "description": "Ensure buttons have discernible text",
+        "nodes": [
+          {
+            "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\">",
+            "target": "button",
+            "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "wcag2aa",
+          "wcag143"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "nodes": [
+          {
+            "html": "<p class=\"helper-text\">We curate stories, never spam. Unsubscribe anytime with one click.</p>",
+            "target": "p",
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.32 (foreground color: #aaaaaa, background color: #ffffff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "tags": [
+          "best-practice"
+        ],
+        "description": "Ensure the order of headings is semantically correct",
+        "nodes": [
+          {
+            "html": "<h4>Your artisanal roast digest delivered every Monday</h4>",
+            "target": "h4",
+            "failureSummary": "Fix any of the following:\n  Heading order invalid"
+          }
+        ]
+      },
+      {
+        "id": "html-has-lang",
+        "impact": "serious",
+        "tags": [
+          "wcag2a",
+          "wcag311"
+        ],
+        "description": "Ensure every HTML document has a lang attribute",
+        "nodes": [
+          {
+            "html": "<html>",
+            "target": "html",
+            "failureSummary": "Fix any of the following:\n  The <html> element does not have a lang attribute"
+          }
+        ]
+      },
+      {
+        "id": "image-alt",
+        "impact": "critical",
+        "tags": [
+          "wcag2a",
+          "wcag111"
+        ],
+        "description": "Ensure <img> elements have alternative text or a role of none or presentation",
+        "nodes": [
+          {
+            "html": "<img src=\"data:image/svg+xml;u...\">",
+            "target": "img",
+            "failureSummary": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+          }
+        ]
+      },
+      {
+        "id": "landmark-one-main",
+        "impact": "moderate",
+        "tags": [
+          "best-practice"
+        ],
+        "description": "Ensure the document has a main landmark",
+        "nodes": [
+          {
+            "html": "<html>",
+            "target": "html",
+            "failureSummary": "Fix all of the following:\n  Document does not have a main landmark"
+          }
+        ]
+      },
+      {
+        "id": "region",
+        "impact": "moderate",
+        "tags": [
+          "best-practice"
+        ],
+        "description": "Ensure all page content is contained by landmarks",
+        "nodes": [
+          {
+            "html": "<span>Special edition: The Ethiopian Yirgacheffe Guide is out!</span>",
+            "target": "span",
+            "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+          },
+          {
+            "html": "<div class=\"header-bar\">\n    <div class=\"brand\">Brew &amp; Bean</div>\n  </div>",
+            "target": ".header-bar",
+            "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+          },
+          {
+            "html": "<div class=\"hero-container\">",
+            "target": ".hero-container",
+            "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+          },
+          {
+            "html": "<h1>Brew &amp; Bean Weekly</h1>",
+            "target": "h1",
+            "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+          },
+          {
+            "html": "<h4>Your artisanal roast digest delivered every Monday</h4>",
+            "target": "h4",
+            "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+          },
+          {
+            "html": "<div class=\"newsletter-form\">",
+            "target": ".newsletter-form",
+            "failureSummary": "Fix any of the following:\n  Some page content is not contained by landmarks"
+          }
+        ]
+      }
+    ],
+    "ariaTree": "- text: \"Special edition: The Ethiopian Yirgacheffe Guide is out!\"\n- button:\n  - img\n- text: Brew & Bean\n- img\n- heading \"Brew & Bean Weekly\" [level=1]\n- heading \"Your artisanal roast digest delivered every Monday\" [level=4]\n- textbox \"Enter your email address\"\n- paragraph: We curate stories, never spam. Unsubscribe anytime with one click.\n- text: Subscribe",
+    "keyboard": {
+      "totalTabs": 40,
+      "tabHistory": [
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        }
+      ],
+      "unreachableElements": [
+        {
+          "tag": "div",
+          "role": "div",
+          "selector": "div.btn-subscribe",
+          "text": "Subscribe",
+          "html": "<div class=\"btn-subscribe\" onclick=\"handleSubscribe()\" data-accessfix-id=\"2\">\n          Subscribe\n        </div>"
+        }
+      ],
+      "focusTrap": null,
+      "elementsWithoutVisibleFocus": [
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        }
+      ],
+      "elementsWithoutAccessibleNames": [
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "UNLABELLED",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "UNLABELLED",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": false,
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+        }
+      ]
+    },
+    "screenshot": "/Users/nitinsharma/Downloads/fetch ai hackathon/cache/broken/before.png"
+  }
+}

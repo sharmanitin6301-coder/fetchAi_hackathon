@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AccessFix — Pitch Deck</title>
+  <style>
+    /* Design Tokens matching AccessFix Dashboard */
+    :root {
+      --bg: #FFFFFF;
+      --text: #111827;
+      --text-muted: #374151;
+      --primary: #1D4ED8;
+      --primary-hover: #1E40AF;
+      --card-bg: #F9FAFB;
+      --border: #D1D5DB;
+      --border-light: #E5E7EB;
+      --success-bg: #DCFCE7;
+      --success-text: #14532D;
+      --warning-bg: #FFFBEB;
+      --warning-text: #92400E;
+      --warning-border: #FCD34D;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-family);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    /* Universal Accessible Focus Indicator */
+    *:focus-visible {
+      outline: 3px solid var(--primary) !important;
+      outline-offset: 3px !important;
+    }
+
+    /* App Container */
+    .deck-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Navigation & Progress Header */
+    header.deck-header {
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--border-light);
+      background: var(--bg);
+      z-index: 10;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-badge {
+      background: var(--primary);
+      color: #FFFFFF;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .slide-indicator {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-muted);
+      min-width: 90px;
+      text-align: center;
+    }
+
+    .nav-btn {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* Slides Stage */
+    main.deck-stage {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      max-width: 1180px;
+      height: calc(100vh - 160px);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* Common Typography */
+    .slide-badge {
+      font-size: 15px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .slide-title {
+      font-size: 54px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+
+    .slide-lead {
+      font-size: 26px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      max-width: 960px;
+    }
+
+    /* Slide 1: Hook */
+    .hook-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .hook-media {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+      position: relative;
+    }
+
+    .hook-media img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+
+    .hook-callout {
+      margin-top: 20px;
+      padding: 14px 18px;
+      background: #FEE2E2;
+      border-left: 5px solid #DC2626;
+      border-radius: 6px;
+      color: #7F1D1D;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    /* Slide 2: Problem */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 36px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 2px solid var(--border-light);
+      border-radius: 12px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-number {
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-sub {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .punchline-box {
+      margin-top: 36px;
+      background: #FFFBEB;
+      border: 2px solid var(--warning-border);
+      border-radius: 10px;
+      padding: 20px 28px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #78350F;
+    }
+
+    /* Slide 3: Solution */
+    .solution-quote {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1.25;
+      color: var(--primary);
+      background: #EFF6FF;
+      border-left: 8px solid var(--primary);
+      border-radius: 0 12px 12px 0;
+      padding: 28px 32px;
+      margin-bottom: 36px;
+    }
+
+    .solution-pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .pillar-card {
+      background: var(--card-bg);
+      border: 2px solid var(--border-light);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .pillar-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .pillar-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .pillar-desc {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Slide 4: Live Demo with Timer */
+    .demo-slide-wrap {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .timer-display {
+      font-size: 130px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      color: var(--primary);
+      letter-spacing: 2px;
+      padding: 10px 40px;
+      background: var(--card-bg);
+      border: 4px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .timer-display.running {
+      color: #166534;
+      border-color: #86EFAC;
+      background: #F0FDF4;
+    }
+
+    .timer-display.ended {
+      color: #991B1B;
+      border-color: #FCA5A5;
+      background: #FEF2F2;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.03); }
+    }
+
+    .timer-hint {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .timer-btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    /* Slide 5: How It Works Flow Diagram */
+    .flow-wrapper {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      position: relative;
+    }
+
+    .step-node {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+
+    .step-node.active-stage {
+      border-color: var(--primary);
+      background: #EFF6FF;
+    }
+
+    .step-num {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .loop-banner {
+      background: #EFF6FF;
+      border: 2px dashed var(--primary);
+      border-radius: 10px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #1E3A8A;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .loop-arrow-tag {
+      background: var(--primary);
+      color: #FFFFFF;
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Slide 6: Honesty & Next */
+    .honesty-callout {
+      background: var(--warning-bg);
+      border: 2px solid var(--warning-border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+    }
+
+    .honesty-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--warning-text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .honesty-text {
+      font-size: 20px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .roadmap-card {
+      background: var(--card-bg);
+      border: 2px solid var(--border-light);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .roadmap-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--primary);
+      color: #FFFFFF;
+      margin-bottom: 10px;
+    }
+
+    .roadmap-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .roadmap-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Footer Key hints */
+    footer.deck-footer {
+      padding: 12px 32px;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: var(--text-muted);
+      background: var(--bg);
+    }
+
+    .kbd-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: monospace;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="deck-container">
+    <!-- Accessible Header & Slide Controls -->
+    <header class="deck-header" role="banner">
+      <div class="brand-mark">
+        <span class="brand-badge" aria-hidden="true">AI ACCESSIBILITY</span>
+        <span>AccessFix</span>
+      </div>
+      <div class="deck-controls" role="region" aria-label="Slide Controls">
+        <button type="button" id="prevBtn" class="nav-btn" aria-label="Previous Slide (Left Arrow)">
+          <span aria-hidden="true">←</span>
+          <span>Previous</span>
+        </button>
+        <span id="slideCounter" class="slide-indicator" aria-live="polite">Slide 1 of 6</span>
+        <button type="button" id="nextBtn" class="nav-btn" aria-label="Next Slide (Right Arrow)">
+          <span>Next</span>
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Slides Region -->
+    <main class="deck-stage" role="main" aria-label="Presentation Slides">
+      
+      <!-- Slide 1: Hook -->
+      <section class="slide active" id="slide-1" data-slide="1" aria-labelledby="slide-1-title">
+        <div class="slide-badge">01 / The Reality</div>
+        <div class="hook-grid">
+          <div>
+            <h1 id="slide-1-title" class="slide-title">Meet a blind user trying to sign up.</h1>
+            <p class="slide-lead">
+              To sighted visitors, this newsletter form looks clean, polished, and ready.
+            </p>
+            <div class="hook-callout">
+              <strong>Fatal barrier:</strong> The "Subscribe" button is an unlabelled <code>&lt;div&gt;</code> without focus or keyboard access. A screen-reader user can never submit it.
+            </div>
+          </div>
+          <div class="hook-media">
+            <img
+              src="../cache/broken/before.png"
+              alt="Screenshot of Brew &amp; Bean Weekly newsletter signup page with hidden keyboard trap and unlabelled elements"
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 2: Problem -->
+      <section class="slide" id="slide-2" data-slide="2" aria-labelledby="slide-2-title">
+        <div class="slide-badge">02 / The Crisis</div>
+        <h1 id="slide-2-title" class="slide-title">Accessibility tools are stuck in the 1990s.</h1>
+        <p class="slide-lead">
+          Web accessibility is no longer optional—it is a human right and an enforced legal requirement.
+        </p>
+
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-number">1B+</div>
+            <div class="stat-label">People with Disabilities</div>
+            <div class="stat-sub">Globally excluded from digital services, commerce, and news.</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">EAA &amp; ADA</div>
+            <div class="stat-label">Strict Legal Mandates</div>
+            <div class="stat-sub">European Accessibility Act &amp; ADA mandate WCAG 2.1 compliance now.</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">97%</div>
+            <div class="stat-label">Websites Fail WCAG</div>
+            <div class="stat-sub">Automated audit reports pile up in backlog tickets that nobody fixes.</div>
+          </div>
+        </div>
+
+        <div class="punchline-box">
+          ⚠️ <strong>The fundamental flaw:</strong> Today’s tools only <em>REPORT</em> problems. They don’t test real user tasks, and they don’t write the fixes.
+        </div>
+      </section>
+
+      <!-- Slide 3: Solution -->
+      <section class="slide" id="slide-3" data-slide="3" aria-labelledby="slide-3-title">
+        <div class="slide-badge">03 / The Innovation</div>
+        <h1 id="slide-3-title" class="slide-title">Autonomous Task-Driven Accessibility Repair.</h1>
+
+        <blockquote class="solution-quote">
+          “Paste a URL. An AI agent tries a real task with only a keyboard, gets stuck, we fix the code, it succeeds. You get proof.”
+        </blockquote>
+
+        <div class="solution-pillars">
+          <div class="pillar-card">
+            <div class="pillar-icon" aria-hidden="true">⌨️</div>
+            <h2 class="pillar-title">1. Blind Agent</h2>
+            <p class="pillar-desc">
+              Navigates using <em>only</em> keyboard events and accessibility tree snapshots—just like real assistive technology.
+            </p>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-icon" aria-hidden="true">🛠️</div>
+            <h2 class="pillar-title">2. Semantic Fixer</h2>
+            <p class="pillar-desc">
+              Synthesizes real code fixes: contrast math, accessible buttons, labels, heading hierarchies, and landmark regions.
+            </p>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-icon" aria-hidden="true">✅</div>
+            <h2 class="pillar-title">3. Closed-Loop Proof</h2>
+            <p class="pillar-desc">
+              Re-executes the agent on the patched working copy. Bounding-box layout checks ensure no visual regressions.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 4: LIVE DEMO -->
+      <section class="slide" id="slide-4" data-slide="4" aria-labelledby="slide-4-title">
+        <div class="slide-badge">04 / Real-Time Execution</div>
+        <div class="demo-slide-wrap">
+          <h1 id="slide-4-title" class="slide-title" style="margin-bottom: 0;">LIVE DEMO</h1>
+          <p class="slide-lead" style="text-align: center;">
+            Watch the Blind Agent get trapped, synthesize code repairs, and re-verify success.
+          </p>
+
+          <div id="countdownTimer" class="timer-display" role="timer" aria-live="polite">03:00</div>
+
+          <p class="timer-hint">
+            Press <kbd class="kbd-tag">T</kbd> to start / pause the 3-minute pitch countdown
+          </p>
+
+          <div class="timer-btn-row">
+            <button type="button" id="startTimerBtn" class="nav-btn">Start Timer</button>
+            <button type="button" id="resetTimerBtn" class="nav-btn">Reset (3:00)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 5: How It Works -->
+      <section class="slide" id="slide-5" data-slide="5" aria-labelledby="slide-5-title">
+        <div class="slide-badge">05 / Architecture</div>
+        <h1 id="slide-5-title" class="slide-title">How AccessFix Works</h1>
+        <p class="slide-lead">
+          A multi-agent, closed-loop pipeline from diagnostic scan to mathematical verification.
+        </p>
+
+        <div class="flow-wrapper">
+          <div class="flow-steps" role="list">
+            <div class="step-node" role="listitem">
+              <span class="step-num">Step 1</span>
+              <span class="step-title">Scanner</span>
+              <span class="step-desc">Axe audit + ARIA snapshot</span>
+            </div>
+            <div class="step-node" role="listitem">
+              <span class="step-num">Step 2</span>
+              <span class="step-title">Task Finder</span>
+              <span class="step-desc">Discovers key visitor goal</span>
+            </div>
+            <div class="step-node active-stage" role="listitem">
+              <span class="step-num">Step 3</span>
+              <span class="step-title">Blind Agent</span>
+              <span class="step-desc">Keyboard only, identifies trap</span>
+            </div>
+            <div class="step-node" role="listitem">
+              <span class="step-num">Step 4</span>
+              <span class="step-title">Prioritizer</span>
+              <span class="step-desc">Scores task-blocking issues</span>
+            </div>
+            <div class="step-node active-stage" role="listitem">
+              <span class="step-num">Step 5</span>
+              <span class="step-title">Fixer</span>
+              <span class="step-desc">Semantic HTML &amp; CSS repair</span>
+            </div>
+            <div class="step-node active-stage" role="listitem">
+              <span class="step-num">Step 6</span>
+              <span class="step-title">Verifier</span>
+              <span class="step-desc">Layout shift check + re-test</span>
+            </div>
+            <div class="step-node" role="listitem">
+              <span class="step-num">Step 7</span>
+              <span class="step-title">Report</span>
+              <span class="step-desc">Diff + screen-reader audio</span>
+            </div>
+          </div>
+
+          <div class="loop-banner">
+            <div>
+              🔄 <strong>Closed-Loop Verification:</strong> If the agent is still stuck or layout shifts &gt; 5px, Verifier loops back to Fixer with targeted context (Max 3 rounds).
+            </div>
+            <span class="loop-arrow-tag">LOOP: Step 6 → Step 5</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 6: Impact, Honesty & Next -->
+      <section class="slide" id="slide-6" data-slide="6" aria-labelledby="slide-6-title">
+        <div class="slide-badge">06 / Responsibility &amp; Vision</div>
+        <h1 id="slide-6-title" class="slide-title">Impact, Honesty &amp; What's Next</h1>
+
+        <div class="honesty-callout">
+          <div class="honesty-title">
+            <span aria-hidden="true">🛡️</span>
+            <span>Radical Honesty:</span>
+          </div>
+          <p class="honesty-text">
+            <strong>“Automation cannot catch everything. We fix common blocking issues and flag the rest for humans.”</strong>
+            Rather than hallucinating false compliance, uncertain issues are routed directly to the Needs-A-Human triage queue.
+          </p>
+        </div>
+
+        <div class="roadmap-grid">
+          <div class="roadmap-card">
+            <span class="roadmap-badge">Phase 1</span>
+            <h2 class="roadmap-title">GitHub Action / CI Bot</h2>
+            <p class="roadmap-desc">
+              Gate pull requests on verified keyboard task completion instead of static scorecards.
+            </p>
+          </div>
+          <div class="roadmap-card">
+            <span class="roadmap-badge">Phase 2</span>
+            <h2 class="roadmap-title">Browser Extension</h2>
+            <p class="roadmap-desc">
+              Client-side accessibility runtime polyfills broken web apps on the fly for disabled visitors.
+            </p>
+          </div>
+          <div class="roadmap-card">
+            <span class="roadmap-badge">Phase 3</span>
+            <h2 class="roadmap-title">Multi-Step Task Flows</h2>
+            <p class="roadmap-desc">
+              Expand beyond single pages to complex checkout funnels, modals, and dynamic SPAs.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer with Keyboard Hints -->
+    <footer class="deck-footer" role="contentinfo">
+      <div>
+        Use <kbd class="kbd-tag">←</kbd> <kbd class="kbd-tag">→</kbd> Arrow Keys or <kbd class="kbd-tag">Space</kbd> to Navigate Slides
+      </div>
+      <div>
+        Press <kbd class="kbd-tag">T</kbd> to Start/Pause 3-minute Timer
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Slide Navigation Controller
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const slideCounter = document.getElementById('slideCounter');
+    let currentSlide = 0;
+
+    function showSlide(index) {
+      if (index < 0) index = 0;
+      if (index >= slides.length) index = slides.length - 1;
+
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === index);
+      });
+
+      currentSlide = index;
+      slideCounter.textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === slides.length - 1;
+
+      // Update focus and announcement
+      const activeSlide = slides[currentSlide];
+      const title = activeSlide.querySelector('h1');
+      if (title) {
+        title.setAttribute('tabindex', '-1');
+        title.focus();
+      }
+    }
+
+    prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+    nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+
+    // Keyboard Controller
+    window.addEventListener('keydown', (e) => {
+      // Prevent handling if typing in an input
+      if (['input', 'textarea'].includes(document.activeElement.tagName.toLowerCase())) return;
+
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        showSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault();
+        showSlide(currentSlide - 1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        showSlide(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        showSlide(slides.length - 1);
+      } else if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        toggleTimer();
+      }
+    });
+
+    // 3:00 Countdown Timer Controller
+    let timerDuration = 180; // 3 minutes in seconds
+    let timerRemaining = 180;
+    let timerInterval = null;
+    let timerRunning = false;
+
+    const timerDisplay = document.getElementById('countdownTimer');
+    const startTimerBtn = document.getElementById('startTimerBtn');
+    const resetTimerBtn = document.getElementById('resetTimerBtn');
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function updateTimerUI() {
+      timerDisplay.textContent = formatTime(timerRemaining);
+      if (timerRunning) {
+        timerDisplay.className = 'timer-display running';
+        startTimerBtn.textContent = 'Pause Timer';
+      } else if (timerRemaining === 0) {
+        timerDisplay.className = 'timer-display ended';
+        startTimerBtn.textContent = 'Start Timer';
+      } else {
+        timerDisplay.className = 'timer-display';
+        startTimerBtn.textContent = 'Start Timer';
+      }
+    }
+
+    function toggleTimer() {
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        updateTimerUI();
+      } else {
+        if (timerRemaining === 0) {
+          timerRemaining = timerDuration;
+        }
+        timerRunning = true;
+        updateTimerUI();
+        timerInterval = setInterval(() => {
+          if (timerRemaining > 0) {
+            timerRemaining--;
+            updateTimerUI();
+          } else {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            updateTimerUI();
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerRemaining = timerDuration;
+      updateTimerUI();
+    }
+
+    startTimerBtn.addEventListener('click', toggleTimer);
+    resetTimerBtn.addEventListener('click', resetTimer);
+
+    // Initial state setup
+    showSlide(0);
+    updateTimerUI();
+  </script>
+</body>
+</html>

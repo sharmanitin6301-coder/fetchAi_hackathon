@@ -1,0 +1,43 @@
+{
+  "site": "fixed",
+  "stage": "agent_after",
+  "timestamp": "2026-10-22T16:35:38.869Z",
+  "data": {
+    "success": true,
+    "steps": 5,
+    "stuckAt": null,
+    "mode": "scripted",
+    "transcript": [
+      {
+        "step": 1,
+        "heard": "No element focused",
+        "thought": "[Scripted Fallback - LLM Unavailable] Pressing Tab to reach promo banner close button.",
+        "action": "Tab"
+      },
+      {
+        "step": 2,
+        "heard": "button, Close promo banner",
+        "thought": "[Scripted Fallback] Pressing Tab to reach the email input.",
+        "action": "Tab"
+      },
+      {
+        "step": 3,
+        "heard": "textbox, Email address",
+        "thought": "[Scripted Fallback] Typing email address into email input field.",
+        "action": "Type:alex@example.com"
+      },
+      {
+        "step": 4,
+        "heard": "textbox, Email address",
+        "thought": "[Scripted Fallback] Pressing Tab to reach the Subscribe button.",
+        "action": "Tab"
+      },
+      {
+        "step": 5,
+        "heard": "button, Subscribe",
+        "thought": "[Scripted Fallback] Pressing Enter on the Subscribe button to submit.",
+        "action": "Enter"
+      }
+    ]
+  }
+}

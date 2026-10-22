@@ -1,0 +1,436 @@
+{
+  "site": "fixed",
+  "stage": "before",
+  "timestamp": "2026-10-22T12:24:23.055Z",
+  "data": {
+    "siteName": "fixed",
+    "url": "file:///Users/nitinsharma/Downloads/fetch ai hackathon/demo-sites/fixed.html",
+    "scannedAt": "2026-10-22T12:24:23.055Z",
+    "axeSummary": {
+      "totalViolations": 0,
+      "byImpact": {
+        "critical": 0,
+        "serious": 0,
+        "moderate": 0,
+        "minor": 0
+      }
+    },
+    "axeViolations": [],
+    "ariaTree": "- complementary \"Special announcements\":\n  - text: \"Special edition: The Ethiopian Yirgacheffe Guide is out!\"\n  - button \"Close promo banner\"\n- banner:\n  - navigation \"Main Navigation\": Brew & Bean\n- main:\n  - img \"Fresh cup of artisanal coffee with rising steam on warm background\"\n  - heading \"Brew & Bean Weekly\" [level=1]\n  - heading \"Your artisanal roast digest delivered every Monday\" [level=2]\n  - text: Email address\n  - textbox \"Email address\":\n    - /placeholder: Enter your email address\n  - paragraph: We curate stories, never spam. Unsubscribe anytime with one click.\n  - button \"Subscribe\"",
+    "keyboard": {
+      "totalTabs": 45,
+      "tabHistory": [
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        },
+        {
+          "candidateId": "0",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Close promo banner",
+          "selector": "button.banner-close",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"button\" class=\"banner-close\" aria-label=\"Close promo banner\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-"
+        },
+        {
+          "candidateId": "1",
+          "tag": "input",
+          "role": "input",
+          "accessibleName": "Email address",
+          "selector": "#emailInput",
+          "hasVisibleFocusIndicator": true,
+          "html": "<input type=\"email\" id=\"emailInput\" name=\"email\" placeholder=\"Enter your email address\" required=\"\" data-accessfix-id=\"1\">"
+        },
+        {
+          "candidateId": "2",
+          "tag": "button",
+          "role": "button",
+          "accessibleName": "Subscribe",
+          "selector": "button.btn-subscribe",
+          "hasVisibleFocusIndicator": true,
+          "html": "<button type=\"submit\" class=\"btn-subscribe\" data-accessfix-id=\"2\">\n          Subscribe\n        </button>"
+        }
+      ],
+      "unreachableElements": [],
+      "focusTrap": null,
+      "elementsWithoutVisibleFocus": [],
+      "elementsWithoutAccessibleNames": []
+    },
+    "screenshot": "/Users/nitinsharma/Downloads/fetch ai hackathon/cache/fixed/before.png"
+  }
+}

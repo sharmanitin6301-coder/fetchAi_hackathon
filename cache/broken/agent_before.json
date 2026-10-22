@@ -1,0 +1,67 @@
+{
+  "site": "broken",
+  "stage": "agent_before",
+  "timestamp": "2026-10-22T21:53:46.941Z",
+  "data": {
+    "success": false,
+    "steps": 9,
+    "stuckAt": "Element '#emailInput' (textbox, unlabelled) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex).",
+    "mode": "llm",
+    "transcript": [
+      {
+        "step": 1,
+        "heard": "No element focused",
+        "thought": "Need to move focus to the email textbox before typing, so start with a Tab to advance focus",
+        "action": "Tab"
+      },
+      {
+        "step": 2,
+        "heard": "button, unlabelled",
+        "thought": "The focus is on the subscribe button; I need to move to the email textbox first to enter my address",
+        "action": "Shift+Tab"
+      },
+      {
+        "step": 3,
+        "heard": "No element focused",
+        "thought": "I need to focus the email textbox first, so I will press Tab to move focus to the email input field",
+        "action": "Tab"
+      },
+      {
+        "step": 4,
+        "heard": "button, unlabelled",
+        "thought": "I need to reach the email textbox to type my address, so I will tab forward from the current button focus",
+        "action": "Tab"
+      },
+      {
+        "step": 5,
+        "heard": "textbox, unlabelled",
+        "thought": "Focus is on the email textbox, so I will type my email address",
+        "action": "Type:user@example.com"
+      },
+      {
+        "step": 6,
+        "heard": "textbox, unlabelled",
+        "thought": "After entering the email, I need to activate the Subscribe button. Shift+Tab should move focus from the email textbox to the button so I can press it next.",
+        "action": "Shift+Tab"
+      },
+      {
+        "step": 7,
+        "heard": "button, unlabelled",
+        "thought": "Move focus to the Subscribe button to activate it after entering email",
+        "action": "Tab"
+      },
+      {
+        "step": 8,
+        "heard": "textbox, unlabelled",
+        "thought": "The subscribe button is likely focused after the recent Tab, so pressing Enter should submit the newsletter subscription.",
+        "action": "Enter"
+      },
+      {
+        "step": 9,
+        "heard": "textbox, unlabelled",
+        "thought": "Focus loop detected on #emailInput. Stopping agent.",
+        "action": "STOP"
+      }
+    ]
+  }
+}

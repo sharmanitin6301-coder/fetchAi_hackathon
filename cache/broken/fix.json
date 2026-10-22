@@ -1,0 +1,101 @@
+{
+  "site": "broken",
+  "stage": "fix",
+  "timestamp": "2026-10-22T21:53:46.989Z",
+  "data": {
+    "site": "broken",
+    "appliedOps": [
+      {
+        "op": "replaceTag",
+        "selector": ".btn-subscribe",
+        "value": "button",
+        "reason": "Convert non-focusable clickable div into a semantic <button type=\"submit\">",
+        "confidence": 0.98
+      },
+      {
+        "op": "addCss",
+        "selector": ":focus-visible",
+        "name": "outline",
+        "value": "3px solid #1a5fb4 !important; outline-offset: 2px !important;",
+        "reason": "Add high-contrast focus ring for keyboard navigation overriding outline:none",
+        "confidence": 1
+      },
+      {
+        "op": "setAttr",
+        "selector": ".banner-close",
+        "name": "aria-label",
+        "value": "Close promo banner",
+        "reason": "Add descriptive aria-label to icon-only banner close button",
+        "confidence": 0.95
+      },
+      {
+        "op": "insertBefore",
+        "selector": "#emailInput",
+        "name": "label",
+        "value": "<label for=\"emailInput\" class=\"form-label\" style=\"display:block;margin-bottom:6px;font-weight:600;font-size:14px;color:#27272a;\">Email address</label>",
+        "reason": "Insert accessible <label> associated with the form input",
+        "confidence": 0.98
+      },
+      {
+        "op": "setAttr",
+        "selector": ".hero-container img",
+        "name": "alt",
+        "value": "Fresh cup of artisanal coffee with rising steam on warm background",
+        "reason": "Add descriptive alternative text for screen reader users",
+        "confidence": 0.95
+      },
+      {
+        "op": "addCss",
+        "selector": ".helper-text",
+        "name": "color",
+        "value": "#747474",
+        "reason": "Darken text color to #747474 to satisfy WCAG AA contrast >= 4.5:1 against white",
+        "confidence": 1
+      },
+      {
+        "op": "replaceTag",
+        "selector": "h4",
+        "value": "h2",
+        "reason": "Restore semantic heading hierarchy (h1 followed by h2)",
+        "confidence": 0.98
+      },
+      {
+        "op": "setAttr",
+        "selector": "html",
+        "name": "lang",
+        "value": "en",
+        "reason": "Declare primary document language as English",
+        "confidence": 1
+      },
+      {
+        "op": "replaceTag",
+        "selector": ".container",
+        "value": "main",
+        "reason": "Wrap main page content inside semantic <main> landmark",
+        "confidence": 0.95
+      },
+      {
+        "op": "replaceTag",
+        "selector": "#promoBanner",
+        "value": "aside",
+        "reason": "Wrap promotional banner inside semantic <aside> region landmark",
+        "confidence": 0.95
+      },
+      {
+        "op": "replaceTag",
+        "selector": ".header-bar",
+        "value": "header",
+        "reason": "Wrap header bar inside semantic <header> landmark",
+        "confidence": 0.95
+      }
+    ],
+    "rejectedOps": [],
+    "needsHuman": [
+      {
+        "id": "focus-emailInput",
+        "selector": "#emailInput",
+        "reason": "possible false positive, browser default focus ring"
+      }
+    ]
+  }
+}

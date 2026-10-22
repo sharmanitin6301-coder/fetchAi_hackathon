@@ -1,0 +1,110 @@
+{
+  "site": "broken",
+  "stage": "prioritized",
+  "timestamp": "2026-10-22T21:53:46.976Z",
+  "data": {
+    "issues": [
+      {
+        "id": "unreachable-div_btn-subscribe",
+        "fixType": "non-focusable clickable div -> real button, with visible focus",
+        "selector": "div.btn-subscribe",
+        "score": 160,
+        "userTypes": [
+          "keyboard-only",
+          "blind"
+        ],
+        "blocksTask": true,
+        "reason": "Interactive \"Subscribe\" is a <div> without keyboard focusability (tabindex/role), blocking keyboard navigation."
+      },
+      {
+        "id": "unlabelled-button-button_banner-close",
+        "fixType": "button with no accessible name (button-name)",
+        "selector": "button.banner-close",
+        "score": 40,
+        "userTypes": [
+          "blind"
+        ],
+        "blocksTask": false,
+        "reason": "Button at \"button.banner-close\" has no accessible name or text for screen reader users."
+      },
+      {
+        "id": "unlabelled-input-_emailInput",
+        "fixType": "form input with no label (label)",
+        "selector": "#emailInput",
+        "score": 40,
+        "userTypes": [
+          "blind"
+        ],
+        "blocksTask": false,
+        "reason": "Form input \"#emailInput\" lacks an associated <label> element."
+      },
+      {
+        "id": "axe-image-alt-img",
+        "fixType": "missing image alt (image-alt)",
+        "selector": "img",
+        "score": 40,
+        "userTypes": [
+          "blind"
+        ],
+        "blocksTask": false,
+        "reason": "Hero image has no alternative text (alt attribute missing)."
+      },
+      {
+        "id": "axe-contrast-p",
+        "fixType": "low text contrast (color-contrast)",
+        "selector": "p",
+        "score": 30,
+        "userTypes": [
+          "low-vision",
+          "color-blind"
+        ],
+        "blocksTask": false,
+        "reason": "Text contrast ratio is below the WCAG AA 4.5:1 threshold."
+      },
+      {
+        "id": "page-structure",
+        "fixType": "page-structure",
+        "selector": "html",
+        "score": 30,
+        "userTypes": [
+          "blind"
+        ],
+        "blocksTask": false,
+        "reason": "Page structure issues detected (heading-order, html-has-lang, landmark-one-main, region): missing landmarks, heading hierarchy, and document language.",
+        "details": [
+          {
+            "ruleId": "heading-order",
+            "selector": "h4",
+            "impact": "moderate",
+            "description": "Ensure the order of headings is semantically correct"
+          },
+          {
+            "ruleId": "html-has-lang",
+            "selector": "html",
+            "impact": "serious",
+            "description": "Ensure every HTML document has a lang attribute"
+          },
+          {
+            "ruleId": "landmark-one-main",
+            "selector": "html",
+            "impact": "moderate",
+            "description": "Ensure the document has a main landmark"
+          },
+          {
+            "ruleId": "region",
+            "selector": "span",
+            "impact": "moderate",
+            "description": "Ensure all page content is contained by landmarks"
+          }
+        ]
+      }
+    ],
+    "needsHuman": [
+      {
+        "id": "focus-emailInput",
+        "selector": "#emailInput",
+        "reason": "possible false positive, browser default focus ring"
+      }
+    ]
+  }
+}

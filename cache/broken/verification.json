@@ -1,0 +1,142 @@
+{
+  "site": "broken",
+  "stage": "verification",
+  "timestamp": "2026-10-22T17:14:44.543Z",
+  "data": {
+    "rounds": 1,
+    "axeBefore": 7,
+    "axeAfter": 0,
+    "agentBefore": {
+      "success": false,
+      "steps": 12,
+      "stuckAt": "Element '#emailInput' (textbox, unlabelled) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex)."
+    },
+    "agentAfter": {
+      "success": true,
+      "steps": 5,
+      "stuckAt": null
+    },
+    "layoutFlags": [
+      {
+        "selector": "div.newsletter-form",
+        "shift": {
+          "dx": 0,
+          "dy": 14
+        },
+        "before": {
+          "x": 372,
+          "y": 470,
+          "width": 536,
+          "height": 125
+        },
+        "after": {
+          "x": 372,
+          "y": 484,
+          "width": 536,
+          "height": 151
+        },
+        "status": "review",
+        "responsibleOp": null
+      },
+      {
+        "selector": "div.form-group",
+        "shift": {
+          "dx": 0,
+          "dy": 14
+        },
+        "before": {
+          "x": 372,
+          "y": 470,
+          "width": 536,
+          "height": 67
+        },
+        "after": {
+          "x": 372,
+          "y": 484,
+          "width": 536,
+          "height": 90
+        },
+        "status": "review",
+        "responsibleOp": null
+      },
+      {
+        "selector": "#emailInput",
+        "shift": {
+          "dx": 0,
+          "dy": 37
+        },
+        "before": {
+          "x": 372,
+          "y": 470,
+          "width": 536,
+          "height": 43
+        },
+        "after": {
+          "x": 372,
+          "y": 507,
+          "width": 536,
+          "height": 43
+        },
+        "status": "review",
+        "responsibleOp": {
+          "op": "insertBefore",
+          "selector": "#emailInput",
+          "reason": "Insert accessible <label> associated with the form input"
+        }
+      },
+      {
+        "selector": "p.helper-text",
+        "shift": {
+          "dx": 0,
+          "dy": 37
+        },
+        "before": {
+          "x": 372,
+          "y": 521,
+          "width": 536,
+          "height": 16
+        },
+        "after": {
+          "x": 372,
+          "y": 558,
+          "width": 536,
+          "height": 16
+        },
+        "status": "review",
+        "responsibleOp": {
+          "op": "addCss",
+          "selector": ".helper-text",
+          "reason": "Darken text color to #747474 to satisfy WCAG AA contrast >= 4.5:1 against white"
+        }
+      }
+    ],
+    "transcripts": {
+      "before": [
+        "Special edition: The Ethiopian Yirgacheffe Guide is out!",
+        "button, unlabelled",
+        "Brew & Bean",
+        "image, unlabelled",
+        "heading, level 1, Brew & Bean Weekly",
+        "heading, level 4, Your artisanal roast digest delivered every Monday",
+        "edit text, Enter your email address",
+        "We curate stories, never spam. Unsubscribe anytime with one click.",
+        "Subscribe",
+        "Thanks for subscribing"
+      ],
+      "after": [
+        "complimentary, announcement",
+        "Special edition: The Ethiopian Yirgacheffe Guide is out!",
+        "button, Close promo banner",
+        "Brew & Bean",
+        "main content",
+        "image, Fresh cup of artisanal coffee with rising steam on warm background",
+        "heading, level 1, Brew & Bean Weekly",
+        "heading, level 2, Your artisanal roast digest delivered every Monday",
+        "edit text, Email address",
+        "We curate stories, never spam. Unsubscribe anytime with one click.",
+        "button, Subscribe",
+        "Thanks for subscribing"
+      ]
+    }
+  }
+}

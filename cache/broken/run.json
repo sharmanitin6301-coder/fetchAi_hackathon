@@ -1,0 +1,468 @@
+{
+  "site": "broken",
+  "recordedAt": "2026-10-22T21:45:29.579Z",
+  "metrics": {
+    "axeBefore": 7,
+    "axeAfter": 0,
+    "agentBeforeSteps": 12,
+    "agentAfterSteps": 5,
+    "fixesApplied": 11
+  },
+  "events": [
+    {
+      "event": "stage",
+      "delayMs": 600,
+      "payload": {
+        "stage": "scan",
+        "status": "running",
+        "message": "Running Axe WCAG audit and capturing keyboard navigation snapshot..."
+      }
+    },
+    {
+      "event": "stage",
+      "delayMs": 1000,
+      "payload": {
+        "stage": "scan",
+        "status": "completed",
+        "message": "Scan complete: 7 WCAG violations detected. Keyboard trap identified on Subscribe div.",
+        "data": {
+          "axeBefore": 7
+        }
+      }
+    },
+    {
+      "event": "stage",
+      "delayMs": 600,
+      "payload": {
+        "stage": "task",
+        "status": "running",
+        "message": "Discovering primary user goal on the page..."
+      }
+    },
+    {
+      "event": "stage",
+      "delayMs": 900,
+      "payload": {
+        "stage": "task",
+        "status": "completed",
+        "message": "Discovered goal: \"Subscribe to the newsletter with an email\".",
+        "data": {
+          "task": "Subscribe to the newsletter with an email"
+        }
+      }
+    },
+    {
+      "event": "stage",
+      "delayMs": 800,
+      "payload": {
+        "stage": "agent",
+        "status": "running",
+        "message": "Simulating blind user keyboard traversal on original broken page..."
+      }
+    },
+    {
+      "event": "stage",
+      "delayMs": 1200,
+      "payload": {
+        "stage": "agent",
+        "status": "completed",
+        "message": "Initial run FAILED at step 12. Focus looped 4 times; Subscribe control is not keyboard-focusable.",
+        "data": {
+          "success": false,
+          "steps": 12
+        }
+      }
+    },
+    {
+      "event": "stage",
+      "delayMs": 800,
+      "payload": {
+        "stage": "fix",
+        "status": "running",
+        "message": "Prioritizing barriers and synthesizing semantic repair operations..."
+      }
+    },
+    {
+      "event": "stage",
+      "delayMs": 1000,
+      "payload": {
+        "stage": "fix",
+        "status": "completed",
+        "message": "Generated 11 repairs (semantic button, labels, high contrast, landmarks, alt text).",
+        "data": {
+          "fixesApplied": 11
+        }
+      }
+    },
+    {
+      "event": "stage",
+      "delayMs": 900,
+      "payload": {
+        "stage": "verify",
+        "status": "running",
+        "message": "Measuring layout shifts and re-verifying with Blind Agent on patched working copy..."
+      }
+    },
+    {
+      "event": "stage",
+      "delayMs": 1100,
+      "payload": {
+        "stage": "verify",
+        "status": "completed",
+        "message": "Verification PASSED. 0 Axe violations remaining. Blind Agent achieved goal in 5 steps!",
+        "data": {
+          "axeAfter": 0,
+          "agentAfterSteps": 5
+        }
+      }
+    },
+    {
+      "event": "complete",
+      "delayMs": 400,
+      "result": {
+        "axeBefore": 7,
+        "axeAfter": 0,
+        "agentBefore": {
+          "success": false,
+          "steps": 12,
+          "stuckAt": "Element '#emailInput' (textbox, unlabelled) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex)."
+        },
+        "agentAfter": {
+          "success": true,
+          "steps": 5,
+          "stuckAt": null
+        },
+        "fixesCount": 11,
+        "layoutFlagsCount": 4,
+        "needsHumanCount": 1
+      },
+      "data": {
+        "axeBefore": 7,
+        "axeAfter": 0,
+        "agentBefore": {
+          "success": false,
+          "steps": 12,
+          "stuckAt": "Element '#emailInput' (textbox, unlabelled) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex)."
+        },
+        "agentAfter": {
+          "success": true,
+          "steps": 5,
+          "stuckAt": null
+        },
+        "diff": "===================================================================\n--- broken.html (original)\tOriginal\n+++ patched.html (AccessFix)\tPatched\n@@ -1,8 +1,5 @@\n-<!DOCTYPE html>\n-<!-- BUG 6: Missing lang attribute on html, missing main and nav landmarks, and h4 directly after h1 -->\n-<html>\n-<head>\n+<!DOCTYPE html><!-- BUG 6: Missing lang attribute on html, missing main and nav landmarks, and h4 directly after h1 --><html lang=\"en\"><head>\n   <meta charset=\"UTF-8\">\n   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n   <title>Brew &amp; Bean Weekly</title>\n   <style>\n@@ -130,55 +127,59 @@\n       font-size: 15px;\n       text-align: center;\n     }\n   </style>\n-</head>\n+<style id=\"accessfix-focus-styles\">\n+:focus-visible { outline: 3px solid #1a5fb4 !important; outline-offset: 2px !important; }\n+</style><style id=\"accessfix-style-rules\">\n+.helper-text { color: #747474 !important; }\n+</style></head>\n <body>\n-  <div id=\"promoBanner\" class=\"promo-banner\">\n+  <aside id=\"promoBanner\" class=\"promo-banner\">\n     <span>Special edition: The Ethiopian Yirgacheffe Guide is out!</span>\n     <!-- BUG 2: A nameless icon-only button (an SVG \"X\" with no aria-label or text) that closes a promo banner. Placed before the form in tab order -->\n-    <button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\">\n+    <button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" aria-label=\"Close promo banner\">\n       <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n         <line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"></line>\n         <line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"></line>\n       </svg>\n     </button>\n-  </div>\n+  </aside>\n \n-  <div class=\"header-bar\">\n+  <header class=\"header-bar\">\n     <div class=\"brand\">Brew &amp; Bean</div>\n-  </div>\n+  </header>\n \n-  <div class=\"container\">\n+  <main class=\"container\">\n     <div class=\"hero-container\">\n       <!-- BUG 1: Hero img with no alt attribute -->\n-      <img src=\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='220' viewBox='0 0 600 220'><rect width='600' height='220' fill='%23fed7aa'/><circle cx='300' cy='110' r='60' fill='%239a3412'/><path d='M280 85 C280 75 320 75 320 85 C320 95 280 100 280 110' stroke='%23ffffff' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M260 110 C260 145 340 145 340 110 Z' fill='%23ffffff'/></svg>\">\n+      <img src=\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='220' viewBox='0 0 600 220'><rect width='600' height='220' fill='%23fed7aa'/><circle cx='300' cy='110' r='60' fill='%239a3412'/><path d='M280 85 C280 75 320 75 320 85 C320 95 280 100 280 110' stroke='%23ffffff' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M260 110 C260 145 340 145 340 110 Z' fill='%23ffffff'/></svg>\" alt=\"Fresh cup of artisanal coffee with rising steam on warm background\">\n     </div>\n \n     <div class=\"content\">\n       <h1>Brew &amp; Bean Weekly</h1>\n       <!-- BUG 6 continued: h4 straight after h1, skipping h2 and h3 -->\n-      <h4>Your artisanal roast digest delivered every Monday</h4>\n+      <h2>Your artisanal roast digest delivered every Monday</h2>\n \n       <div class=\"newsletter-form\">\n         <div class=\"form-group\">\n           <!-- BUG 3: Email input with no label, only a placeholder -->\n-          <input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\">\n+          <label for=\"emailInput\" class=\"form-label\" style=\"display:block;margin-bottom:6px;font-weight:600;font-size:14px;color:#27272a;\">Email address</label><input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\">\n           <!-- BUG 4 continued: helper paragraph in light grey #aaa on white background -->\n           <p class=\"helper-text\">We curate stories, never spam. Unsubscribe anytime with one click.</p>\n         </div>\n \n         <!-- BUG 5 continued: real Subscribe control is a div with onclick, not focusable, outline:none in CSS -->\n-        <div class=\"btn-subscribe\" onclick=\"handleSubscribe()\">\n+        <button class=\"btn-subscribe\" onclick=\"handleSubscribe()\" type=\"button\">\n           Subscribe\n-        </div>\n+        </button>\n       </div>\n \n       <div id=\"statusMessage\" class=\"success-message\">\n         Thanks for subscribing\n       </div>\n     </div>\n-  </div>\n+  </main>\n \n   <script>\n     function handleSubscribe() {\n       const email = document.getElementById('emailInput').value.trim();\n@@ -186,6 +187,7 @@\n       status.textContent = 'Thanks for subscribing';\n       status.style.display = 'block';\n     }\n   </script>\n-</body>\n-</html>\n+\n+\n+</body></html>\n\\ No newline at end of file\n",
+        "ops": [
+          {
+            "op": "replaceTag",
+            "selector": ".btn-subscribe",
+            "value": "button",
+            "reason": "Convert non-focusable clickable div into a semantic <button type=\"submit\">",
+            "confidence": 0.98
+          },
+          {
+            "op": "addCss",
+            "selector": ":focus-visible",
+            "name": "outline",
+            "value": "3px solid #1a5fb4 !important; outline-offset: 2px !important;",
+            "reason": "Add high-contrast focus ring for keyboard navigation overriding outline:none",
+            "confidence": 1
+          },
+          {
+            "op": "setAttr",
+            "selector": ".banner-close",
+            "name": "aria-label",
+            "value": "Close promo banner",
+            "reason": "Add descriptive aria-label to icon-only banner close button",
+            "confidence": 0.95
+          },
+          {
+            "op": "insertBefore",
+            "selector": "#emailInput",
+            "name": "label",
+            "value": "<label for=\"emailInput\" class=\"form-label\" style=\"display:block;margin-bottom:6px;font-weight:600;font-size:14px;color:#27272a;\">Email address</label>",
+            "reason": "Insert accessible <label> associated with the form input",
+            "confidence": 0.98
+          },
+          {
+            "op": "setAttr",
+            "selector": ".hero-container img",
+            "name": "alt",
+            "value": "Fresh cup of artisanal coffee with rising steam on warm background",
+            "reason": "Add descriptive alternative text for screen reader users",
+            "confidence": 0.95
+          },
+          {
+            "op": "addCss",
+            "selector": ".helper-text",
+            "name": "color",
+            "value": "#747474",
+            "reason": "Darken text color to #747474 to satisfy WCAG AA contrast >= 4.5:1 against white",
+            "confidence": 1
+          },
+          {
+            "op": "replaceTag",
+            "selector": "h4",
+            "value": "h2",
+            "reason": "Restore semantic heading hierarchy (h1 followed by h2)",
+            "confidence": 0.98
+          },
+          {
+            "op": "setAttr",
+            "selector": "html",
+            "name": "lang",
+            "value": "en",
+            "reason": "Declare primary document language as English",
+            "confidence": 1
+          },
+          {
+            "op": "replaceTag",
+            "selector": ".container",
+            "value": "main",
+            "reason": "Wrap main page content inside semantic <main> landmark",
+            "confidence": 0.95
+          },
+          {
+            "op": "replaceTag",
+            "selector": "#promoBanner",
+            "value": "aside",
+            "reason": "Wrap promotional banner inside semantic <aside> region landmark",
+            "confidence": 0.95
+          },
+          {
+            "op": "replaceTag",
+            "selector": ".header-bar",
+            "value": "header",
+            "reason": "Wrap header bar inside semantic <header> landmark",
+            "confidence": 0.95
+          }
+        ],
+        "layoutFlags": [
+          {
+            "selector": "div.newsletter-form",
+            "shift": {
+              "dx": 0,
+              "dy": 14
+            },
+            "before": {
+              "x": 372,
+              "y": 470,
+              "width": 536,
+              "height": 125
+            },
+            "after": {
+              "x": 372,
+              "y": 484,
+              "width": 536,
+              "height": 151
+            },
+            "status": "review",
+            "responsibleOp": null
+          },
+          {
+            "selector": "div.form-group",
+            "shift": {
+              "dx": 0,
+              "dy": 14
+            },
+            "before": {
+              "x": 372,
+              "y": 470,
+              "width": 536,
+              "height": 67
+            },
+            "after": {
+              "x": 372,
+              "y": 484,
+              "width": 536,
+              "height": 90
+            },
+            "status": "review",
+            "responsibleOp": null
+          },
+          {
+            "selector": "#emailInput",
+            "shift": {
+              "dx": 0,
+              "dy": 37
+            },
+            "before": {
+              "x": 372,
+              "y": 470,
+              "width": 536,
+              "height": 43
+            },
+            "after": {
+              "x": 372,
+              "y": 507,
+              "width": 536,
+              "height": 43
+            },
+            "status": "review",
+            "responsibleOp": {
+              "op": "insertBefore",
+              "selector": "#emailInput",
+              "reason": "Insert accessible <label> associated with the form input"
+            }
+          },
+          {
+            "selector": "p.helper-text",
+            "shift": {
+              "dx": 0,
+              "dy": 37
+            },
+            "before": {
+              "x": 372,
+              "y": 521,
+              "width": 536,
+              "height": 16
+            },
+            "after": {
+              "x": 372,
+              "y": 558,
+              "width": 536,
+              "height": 16
+            },
+            "status": "review",
+            "responsibleOp": {
+              "op": "addCss",
+              "selector": ".helper-text",
+              "reason": "Darken text color to #747474 to satisfy WCAG AA contrast >= 4.5:1 against white"
+            }
+          }
+        ],
+        "transcripts": {
+          "before": [
+            "Special edition: The Ethiopian Yirgacheffe Guide is out!",
+            "button, unlabelled",
+            "Brew & Bean",
+            "image, unlabelled",
+            "heading, level 1, Brew & Bean Weekly",
+            "heading, level 4, Your artisanal roast digest delivered every Monday",
+            "edit text, Enter your email address",
+            "We curate stories, never spam. Unsubscribe anytime with one click.",
+            "Subscribe",
+            "Thanks for subscribing"
+          ],
+          "after": [
+            "complimentary, announcement",
+            "Special edition: The Ethiopian Yirgacheffe Guide is out!",
+            "button, Close promo banner",
+            "Brew & Bean",
+            "main content",
+            "image, Fresh cup of artisanal coffee with rising steam on warm background",
+            "heading, level 1, Brew & Bean Weekly",
+            "heading, level 2, Your artisanal roast digest delivered every Monday",
+            "edit text, Email address",
+            "We curate stories, never spam. Unsubscribe anytime with one click.",
+            "button, Subscribe",
+            "Thanks for subscribing"
+          ]
+        },
+        "needsHuman": [
+          {
+            "id": "focus-emailInput",
+            "selector": "#emailInput",
+            "reason": "possible false positive, browser default focus ring"
+          }
+        ],
+        "issues": [
+          {
+            "id": "unreachable-div_btn-subscribe",
+            "fixType": "non-focusable clickable div -> real button, with visible focus",
+            "selector": "div.btn-subscribe",
+            "score": 160,
+            "userTypes": [
+              "keyboard-only",
+              "blind"
+            ],
+            "blocksTask": true,
+            "reason": "Interactive \"Subscribe\" is a <div> without keyboard focusability (tabindex/role), blocking keyboard navigation."
+          },
+          {
+            "id": "unlabelled-button-button_banner-close",
+            "fixType": "button with no accessible name (button-name)",
+            "selector": "button.banner-close",
+            "score": 40,
+            "userTypes": [
+              "blind"
+            ],
+            "blocksTask": false,
+            "reason": "Button at \"button.banner-close\" has no accessible name or text for screen reader users."
+          },
+          {
+            "id": "unlabelled-input-_emailInput",
+            "fixType": "form input with no label (label)",
+            "selector": "#emailInput",
+            "score": 40,
+            "userTypes": [
+              "blind"
+            ],
+            "blocksTask": false,
+            "reason": "Form input \"#emailInput\" lacks an associated <label> element."
+          },
+          {
+            "id": "axe-image-alt-img",
+            "fixType": "missing image alt (image-alt)",
+            "selector": "img",
+            "score": 40,
+            "userTypes": [
+              "blind"
+            ],
+            "blocksTask": false,
+            "reason": "Hero image has no alternative text (alt attribute missing)."
+          },
+          {
+            "id": "axe-contrast-p",
+            "fixType": "low text contrast (color-contrast)",
+            "selector": "p",
+            "score": 30,
+            "userTypes": [
+              "low-vision",
+              "color-blind"
+            ],
+            "blocksTask": false,
+            "reason": "Text contrast ratio is below the WCAG AA 4.5:1 threshold."
+          },
+          {
+            "id": "page-structure",
+            "fixType": "page-structure",
+            "selector": "html",
+            "score": 30,
+            "userTypes": [
+              "blind"
+            ],
+            "blocksTask": false,
+            "reason": "Page structure issues detected (heading-order, html-has-lang, landmark-one-main, region): missing landmarks, heading hierarchy, and document language.",
+            "details": [
+              {
+                "ruleId": "heading-order",
+                "selector": "h4",
+                "impact": "moderate",
+                "description": "Ensure the order of headings is semantically correct"
+              },
+              {
+                "ruleId": "html-has-lang",
+                "selector": "html",
+                "impact": "serious",
+                "description": "Ensure every HTML document has a lang attribute"
+              },
+              {
+                "ruleId": "landmark-one-main",
+                "selector": "html",
+                "impact": "moderate",
+                "description": "Ensure the document has a main landmark"
+              },
+              {
+                "ruleId": "region",
+                "selector": "span",
+                "impact": "moderate",
+                "description": "Ensure all page content is contained by landmarks"
+              }
+            ]
+          }
+        ],
+        "originalHtml": "<!DOCTYPE html>\n<!-- BUG 6: Missing lang attribute on html, missing main and nav landmarks, and h4 directly after h1 -->\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Brew &amp; Bean Weekly</title>\n  <style>\n    * { box-sizing: border-box; margin: 0; padding: 0; }\n    body {\n      font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif;\n      background: #f7f9fa;\n      color: #1a202c;\n      padding: 0 0 60px 0;\n    }\n    .promo-banner {\n      background: #e2e8f0;\n      color: #334155;\n      padding: 10px 20px;\n      display: flex;\n      justify-content: space-between;\n      align-items: center;\n      font-size: 14px;\n    }\n    .banner-close {\n      background: none;\n      border: none;\n      cursor: pointer;\n      padding: 4px;\n      display: flex;\n      align-items: center;\n    }\n    .banner-close svg {\n      width: 18px;\n      height: 18px;\n      stroke: #475569;\n    }\n    .header-bar {\n      background: #ffffff;\n      border-bottom: 1px solid #e2e8f0;\n      padding: 16px 24px;\n    }\n    .brand {\n      font-weight: 700;\n      font-size: 18px;\n      color: #7c2d12;\n    }\n    .container {\n      max-width: 600px;\n      margin: 40px auto 0 auto;\n      background: #ffffff;\n      border-radius: 12px;\n      overflow: hidden;\n      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);\n    }\n    .hero-container {\n      width: 100%;\n      height: 220px;\n      background: #fed7aa;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n    }\n    .hero-container img {\n      width: 100%;\n      height: 100%;\n      object-fit: cover;\n    }\n    .content {\n      padding: 32px;\n    }\n    h1 {\n      font-size: 26px;\n      color: #27272a;\n      margin-bottom: 6px;\n    }\n    h4 {\n      font-size: 16px;\n      color: #71717a;\n      font-weight: 400;\n      margin-bottom: 24px;\n    }\n    .form-group {\n      margin-bottom: 16px;\n    }\n    input[type=\"email\"] {\n      width: 100%;\n      padding: 12px 14px;\n      font-size: 15px;\n      border: 1px solid #cbd5e1;\n      border-radius: 6px;\n      background: #ffffff;\n      outline: none;\n    }\n    input[type=\"email\"]:focus {\n      border-color: #9a3412;\n    }\n    /* BUG 4: Helper paragraph in light grey #aaa on white background (contrast ~2.3:1) */\n    .helper-text {\n      color: #aaa;\n      font-size: 13px;\n      margin-top: 8px;\n    }\n    /* BUG 5: Subscribe control is a div with onclick, not focusable, outline:none */\n    .btn-subscribe {\n      display: inline-block;\n      width: 100%;\n      text-align: center;\n      background: #9a3412;\n      color: #ffffff;\n      font-weight: 600;\n      font-size: 15px;\n      padding: 12px 16px;\n      border-radius: 6px;\n      cursor: pointer;\n      user-select: none;\n      outline: none;\n    }\n    .btn-subscribe:hover {\n      background: #7c2d12;\n    }\n    .success-message {\n      display: none;\n      margin-top: 20px;\n      padding: 14px;\n      border-radius: 6px;\n      background: #ecfdf5;\n      color: #065f46;\n      font-weight: 600;\n      font-size: 15px;\n      text-align: center;\n    }\n  </style>\n</head>\n<body>\n  <div id=\"promoBanner\" class=\"promo-banner\">\n    <span>Special edition: The Ethiopian Yirgacheffe Guide is out!</span>\n    <!-- BUG 2: A nameless icon-only button (an SVG \"X\" with no aria-label or text) that closes a promo banner. Placed before the form in tab order -->\n    <button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\">\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n        <line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"></line>\n        <line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"></line>\n      </svg>\n    </button>\n  </div>\n\n  <div class=\"header-bar\">\n    <div class=\"brand\">Brew &amp; Bean</div>\n  </div>\n\n  <div class=\"container\">\n    <div class=\"hero-container\">\n      <!-- BUG 1: Hero img with no alt attribute -->\n      <img src=\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='220' viewBox='0 0 600 220'><rect width='600' height='220' fill='%23fed7aa'/><circle cx='300' cy='110' r='60' fill='%239a3412'/><path d='M280 85 C280 75 320 75 320 85 C320 95 280 100 280 110' stroke='%23ffffff' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M260 110 C260 145 340 145 340 110 Z' fill='%23ffffff'/></svg>\">\n    </div>\n\n    <div class=\"content\">\n      <h1>Brew &amp; Bean Weekly</h1>\n      <!-- BUG 6 continued: h4 straight after h1, skipping h2 and h3 -->\n      <h4>Your artisanal roast digest delivered every Monday</h4>\n\n      <div class=\"newsletter-form\">\n        <div class=\"form-group\">\n          <!-- BUG 3: Email input with no label, only a placeholder -->\n          <input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\">\n          <!-- BUG 4 continued: helper paragraph in light grey #aaa on white background -->\n          <p class=\"helper-text\">We curate stories, never spam. Unsubscribe anytime with one click.</p>\n        </div>\n\n        <!-- BUG 5 continued: real Subscribe control is a div with onclick, not focusable, outline:none in CSS -->\n        <div class=\"btn-subscribe\" onclick=\"handleSubscribe()\">\n          Subscribe\n        </div>\n      </div>\n\n      <div id=\"statusMessage\" class=\"success-message\">\n        Thanks for subscribing\n      </div>\n    </div>\n  </div>\n\n  <script>\n    function handleSubscribe() {\n      const email = document.getElementById('emailInput').value.trim();\n      const status = document.getElementById('statusMessage');\n      status.textContent = 'Thanks for subscribing';\n      status.style.display = 'block';\n    }\n  </script>\n</body>\n</html>\n",
+        "patchedHtml": "<!DOCTYPE html><!-- BUG 6: Missing lang attribute on html, missing main and nav landmarks, and h4 directly after h1 --><html lang=\"en\"><head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Brew &amp; Bean Weekly</title>\n  <style>\n    * { box-sizing: border-box; margin: 0; padding: 0; }\n    body {\n      font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif;\n      background: #f7f9fa;\n      color: #1a202c;\n      padding: 0 0 60px 0;\n    }\n    .promo-banner {\n      background: #e2e8f0;\n      color: #334155;\n      padding: 10px 20px;\n      display: flex;\n      justify-content: space-between;\n      align-items: center;\n      font-size: 14px;\n    }\n    .banner-close {\n      background: none;\n      border: none;\n      cursor: pointer;\n      padding: 4px;\n      display: flex;\n      align-items: center;\n    }\n    .banner-close svg {\n      width: 18px;\n      height: 18px;\n      stroke: #475569;\n    }\n    .header-bar {\n      background: #ffffff;\n      border-bottom: 1px solid #e2e8f0;\n      padding: 16px 24px;\n    }\n    .brand {\n      font-weight: 700;\n      font-size: 18px;\n      color: #7c2d12;\n    }\n    .container {\n      max-width: 600px;\n      margin: 40px auto 0 auto;\n      background: #ffffff;\n      border-radius: 12px;\n      overflow: hidden;\n      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);\n    }\n    .hero-container {\n      width: 100%;\n      height: 220px;\n      background: #fed7aa;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n    }\n    .hero-container img {\n      width: 100%;\n      height: 100%;\n      object-fit: cover;\n    }\n    .content {\n      padding: 32px;\n    }\n    h1 {\n      font-size: 26px;\n      color: #27272a;\n      margin-bottom: 6px;\n    }\n    h4 {\n      font-size: 16px;\n      color: #71717a;\n      font-weight: 400;\n      margin-bottom: 24px;\n    }\n    .form-group {\n      margin-bottom: 16px;\n    }\n    input[type=\"email\"] {\n      width: 100%;\n      padding: 12px 14px;\n      font-size: 15px;\n      border: 1px solid #cbd5e1;\n      border-radius: 6px;\n      background: #ffffff;\n      outline: none;\n    }\n    input[type=\"email\"]:focus {\n      border-color: #9a3412;\n    }\n    /* BUG 4: Helper paragraph in light grey #aaa on white background (contrast ~2.3:1) */\n    .helper-text {\n      color: #aaa;\n      font-size: 13px;\n      margin-top: 8px;\n    }\n    /* BUG 5: Subscribe control is a div with onclick, not focusable, outline:none */\n    .btn-subscribe {\n      display: inline-block;\n      width: 100%;\n      text-align: center;\n      background: #9a3412;\n      color: #ffffff;\n      font-weight: 600;\n      font-size: 15px;\n      padding: 12px 16px;\n      border-radius: 6px;\n      cursor: pointer;\n      user-select: none;\n      outline: none;\n    }\n    .btn-subscribe:hover {\n      background: #7c2d12;\n    }\n    .success-message {\n      display: none;\n      margin-top: 20px;\n      padding: 14px;\n      border-radius: 6px;\n      background: #ecfdf5;\n      color: #065f46;\n      font-weight: 600;\n      font-size: 15px;\n      text-align: center;\n    }\n  </style>\n<style id=\"accessfix-focus-styles\">\n:focus-visible { outline: 3px solid #1a5fb4 !important; outline-offset: 2px !important; }\n</style><style id=\"accessfix-style-rules\">\n.helper-text { color: #747474 !important; }\n</style></head>\n<body>\n  <aside id=\"promoBanner\" class=\"promo-banner\">\n    <span>Special edition: The Ethiopian Yirgacheffe Guide is out!</span>\n    <!-- BUG 2: A nameless icon-only button (an SVG \"X\" with no aria-label or text) that closes a promo banner. Placed before the form in tab order -->\n    <button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" aria-label=\"Close promo banner\">\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n        <line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"></line>\n        <line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"></line>\n      </svg>\n    </button>\n  </aside>\n\n  <header class=\"header-bar\">\n    <div class=\"brand\">Brew &amp; Bean</div>\n  </header>\n\n  <main class=\"container\">\n    <div class=\"hero-container\">\n      <!-- BUG 1: Hero img with no alt attribute -->\n      <img src=\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='220' viewBox='0 0 600 220'><rect width='600' height='220' fill='%23fed7aa'/><circle cx='300' cy='110' r='60' fill='%239a3412'/><path d='M280 85 C280 75 320 75 320 85 C320 95 280 100 280 110' stroke='%23ffffff' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M260 110 C260 145 340 145 340 110 Z' fill='%23ffffff'/></svg>\" alt=\"Fresh cup of artisanal coffee with rising steam on warm background\">\n    </div>\n\n    <div class=\"content\">\n      <h1>Brew &amp; Bean Weekly</h1>\n      <!-- BUG 6 continued: h4 straight after h1, skipping h2 and h3 -->\n      <h2>Your artisanal roast digest delivered every Monday</h2>\n\n      <div class=\"newsletter-form\">\n        <div class=\"form-group\">\n          <!-- BUG 3: Email input with no label, only a placeholder -->\n          <label for=\"emailInput\" class=\"form-label\" style=\"display:block;margin-bottom:6px;font-weight:600;font-size:14px;color:#27272a;\">Email address</label><input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\">\n          <!-- BUG 4 continued: helper paragraph in light grey #aaa on white background -->\n          <p class=\"helper-text\">We curate stories, never spam. Unsubscribe anytime with one click.</p>\n        </div>\n\n        <!-- BUG 5 continued: real Subscribe control is a div with onclick, not focusable, outline:none in CSS -->\n        <button class=\"btn-subscribe\" onclick=\"handleSubscribe()\" type=\"button\">\n          Subscribe\n        </button>\n      </div>\n\n      <div id=\"statusMessage\" class=\"success-message\">\n        Thanks for subscribing\n      </div>\n    </div>\n  </main>\n\n  <script>\n    function handleSubscribe() {\n      const email = document.getElementById('emailInput').value.trim();\n      const status = document.getElementById('statusMessage');\n      status.textContent = 'Thanks for subscribing';\n      status.style.display = 'block';\n    }\n  </script>\n\n\n</body></html>"
+      }
+    }
+  ]
+}
