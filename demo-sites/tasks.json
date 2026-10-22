@@ -1,0 +1,8 @@
+{
+  "task": "Subscribe to the newsletter with an email",
+  "success": {
+    "type": "textVisible",
+    "value": "Thanks for subscribing"
+  },
+  "hint": "find the email field, type an address, then activate the subscribe control"
+}

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<!-- BUG 6: Missing lang attribute on html, missing main and nav landmarks, and h4 directly after h1 -->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brew &amp; Bean Weekly</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f7f9fa;
+      color: #1a202c;
+      padding: 0 0 60px 0;
+    }
+    .promo-banner {
+      background: #e2e8f0;
+      color: #334155;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+    .banner-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+    .banner-close svg {
+      width: 18px;
+      height: 18px;
+      stroke: #475569;
+    }
+    .header-bar {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 24px;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 18px;
+      color: #7c2d12;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+    }
+    .hero-container {
+      width: 100%;
+      height: 220px;
+      background: #fed7aa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .content {
+      padding: 32px;
+    }
+    h1 {
+      font-size: 26px;
+      color: #27272a;
+      margin-bottom: 6px;
+    }
+    h4 {
+      font-size: 16px;
+      color: #71717a;
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    input[type="email"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 15px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #ffffff;
+      outline: none;
+    }
+    input[type="email"]:focus {
+      border-color: #9a3412;
+    }
+    /* BUG 4: Helper paragraph in light grey #aaa on white background (contrast ~2.3:1) */
+    .helper-text {
+      color: #aaa;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    /* BUG 5: Subscribe control is a div with onclick, not focusable, outline:none */
+    .btn-subscribe {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      background: #9a3412;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      outline: none;
+    }
+    .btn-subscribe:hover {
+      background: #7c2d12;
+    }
+    .success-message {
+      display: none;
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 6px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-weight: 600;
+      font-size: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="promoBanner" class="promo-banner">
+    <span>Special edition: The Ethiopian Yirgacheffe Guide is out!</span>
+    <!-- BUG 2: A nameless icon-only button (an SVG "X" with no aria-label or text) that closes a promo banner. Placed before the form in tab order -->
+    <button class="banner-close" onclick="document.getElementById('promoBanner').style.display='none'">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="header-bar">
+    <div class="brand">Brew &amp; Bean</div>
+  </div>
+
+  <div class="container">
+    <div class="hero-container">
+      <!-- BUG 1: Hero img with no alt attribute -->
+      <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='220' viewBox='0 0 600 220'><rect width='600' height='220' fill='%23fed7aa'/><circle cx='300' cy='110' r='60' fill='%239a3412'/><path d='M280 85 C280 75 320 75 320 85 C320 95 280 100 280 110' stroke='%23ffffff' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M260 110 C260 145 340 145 340 110 Z' fill='%23ffffff'/></svg>">
+    </div>
+
+    <div class="content">
+      <h1>Brew &amp; Bean Weekly</h1>
+      <!-- BUG 6 continued: h4 straight after h1, skipping h2 and h3 -->
+      <h4>Your artisanal roast digest delivered every Monday</h4>
+
+      <div class="newsletter-form">
+        <div class="form-group">
+          <!-- BUG 3: Email input with no label, only a placeholder -->
+          <input type="email" id="emailInput" placeholder="Enter your email address">
+          <!-- BUG 4 continued: helper paragraph in light grey #aaa on white background -->
+          <p class="helper-text">We curate stories, never spam. Unsubscribe anytime with one click.</p>
+        </div>
+
+        <!-- BUG 5 continued: real Subscribe control is a div with onclick, not focusable, outline:none in CSS -->
+        <div class="btn-subscribe" onclick="handleSubscribe()">
+          Subscribe
+        </div>
+      </div>
+
+      <div id="statusMessage" class="success-message">
+        Thanks for subscribing
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function handleSubscribe() {
+      const email = document.getElementById('emailInput').value.trim();
+      const status = document.getElementById('statusMessage');
+      status.textContent = 'Thanks for subscribing';
+      status.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

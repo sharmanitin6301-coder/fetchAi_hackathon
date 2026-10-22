@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<!-- Fixed: Added lang="en" attribute to html -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brew &amp; Bean Weekly</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f7f9fa;
+      color: #1a202c;
+      padding: 0 0 60px 0;
+    }
+    .promo-banner {
+      background: #e2e8f0;
+      color: #334155;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+    .banner-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+    .banner-close:focus-visible {
+      outline: 2px solid #1e3a8a;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    .banner-close svg {
+      width: 18px;
+      height: 18px;
+      stroke: #475569;
+    }
+    .header-bar {
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 24px;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 18px;
+      color: #7c2d12;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+    }
+    .hero-container {
+      width: 100%;
+      height: 220px;
+      background: #fed7aa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .content {
+      padding: 32px;
+    }
+    h1 {
+      font-size: 26px;
+      color: #27272a;
+      margin-bottom: 6px;
+    }
+    /* Fixed: h2 heading following h1 for correct hierarchy */
+    h2 {
+      font-size: 16px;
+      color: #52525b;
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    /* Fixed: visible accessible form label */
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #27272a;
+      margin-bottom: 6px;
+    }
+    input[type="email"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 15px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #ffffff;
+    }
+    input[type="email"]:focus-visible {
+      outline: 2px solid #9a3412;
+      outline-offset: 1px;
+      border-color: #9a3412;
+    }
+    /* Fixed: text contrast exceeds 4.5:1 (#52525b on #ffffff is ~7.2:1) */
+    .helper-text {
+      color: #52525b;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    /* Fixed: Real button with explicit focus-visible outline */
+    .btn-subscribe {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      background: #9a3412;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      user-select: none;
+    }
+    .btn-subscribe:hover {
+      background: #7c2d12;
+    }
+    .btn-subscribe:focus-visible {
+      outline: 3px solid #1e3a8a;
+      outline-offset: 2px;
+    }
+    .success-message {
+      display: none;
+      margin-top: 20px;
+      padding: 14px;
+      border-radius: 6px;
+      background: #ecfdf5;
+      color: #065f46;
+      font-weight: 600;
+      font-size: 15px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <!-- Fixed: added aside landmark for announcements -->
+  <aside id="promoBanner" class="promo-banner" aria-label="Special announcements">
+    <span>Special edition: The Ethiopian Yirgacheffe Guide is out!</span>
+    <!-- Fixed: added aria-label="Close promo banner" -->
+    <button type="button" class="banner-close" aria-label="Close promo banner" onclick="document.getElementById('promoBanner').style.display='none'">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </aside>
+
+  <!-- Fixed: added header and nav landmarks -->
+  <header class="header-bar">
+    <nav aria-label="Main Navigation">
+      <div class="brand">Brew &amp; Bean</div>
+    </nav>
+  </header>
+
+  <!-- Fixed: added main landmark -->
+  <main class="container">
+    <div class="hero-container">
+      <!-- Fixed: descriptive alt attribute added to hero image -->
+      <img alt="Fresh cup of artisanal coffee with rising steam on warm background" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='220' viewBox='0 0 600 220'><rect width='600' height='220' fill='%23fed7aa'/><circle cx='300' cy='110' r='60' fill='%239a3412'/><path d='M280 85 C280 75 320 75 320 85 C320 95 280 100 280 110' stroke='%23ffffff' stroke-width='4' fill='none' stroke-linecap='round'/><path d='M260 110 C260 145 340 145 340 110 Z' fill='%23ffffff'/></svg>">
+    </div>
+
+    <div class="content">
+      <h1>Brew &amp; Bean Weekly</h1>
+      <!-- Fixed: h2 heading properly nested under h1 -->
+      <h2>Your artisanal roast digest delivered every Monday</h2>
+
+      <form class="newsletter-form" onsubmit="event.preventDefault(); handleSubscribe();">
+        <div class="form-group">
+          <!-- Fixed: real label associated with the email input -->
+          <label for="emailInput" class="form-label">Email address</label>
+          <input type="email" id="emailInput" name="email" placeholder="Enter your email address" required>
+          <!-- Fixed: text contrast passes WCAG AA (>= 4.5:1) -->
+          <p class="helper-text">We curate stories, never spam. Unsubscribe anytime with one click.</p>
+        </div>
+
+        <!-- Fixed: real button type="submit" focusable via keyboard with visible focus ring -->
+        <button type="submit" class="btn-subscribe">
+          Subscribe
+        </button>
+      </form>
+
+      <div id="statusMessage" class="success-message" role="status" aria-live="polite">
+        Thanks for subscribing
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function handleSubscribe() {
+      const email = document.getElementById('emailInput').value.trim();
+      const status = document.getElementById('statusMessage');
+      status.textContent = 'Thanks for subscribing';
+      status.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
