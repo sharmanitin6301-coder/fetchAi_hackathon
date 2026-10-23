@@ -257,27 +257,72 @@
       color: var(--failure-text);
     }
 
+    /* Skip to main content link */
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      left: 16px;
+      background: var(--primary);
+      color: #FFFFFF;
+      padding: 12px 20px;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      z-index: 10000;
+      transition: top 0.15s ease-in-out;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .skip-link:focus {
+      top: 16px;
+      outline: 3px solid #1E3A8A;
+      outline-offset: 2px;
+    }
+
+    /* Accessible Visually Hidden Helper */
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
     /* Prominent Result Banner */
     .result-banner {
-      padding: 20px 24px;
-      border-radius: 10px;
-      margin-bottom: 32px;
-      display: none;
+      display: flex;
       align-items: center;
       gap: 16px;
       font-size: 20px;
       font-weight: 700;
+      border-radius: 10px;
+    }
+
+    /* Keep live region always in DOM without display:none */
+    .result-banner:not(.success):not(.failure):not(.info):not(.warning) {
+      padding: 0;
+      margin: 0;
+      border: 0;
+      height: 0;
+      overflow: hidden;
     }
 
     .result-banner.success {
-      display: flex !important;
+      padding: 20px 24px;
+      margin-bottom: 32px;
       background: var(--success-bg);
       color: var(--success-text);
       border: 2px solid #86EFAC;
     }
 
     .result-banner.failure {
-      display: flex !important;
+      padding: 20px 24px;
+      margin-bottom: 32px;
       background: var(--failure-bg);
       color: var(--failure-text);
       border: 2px solid #FCA5A5;
@@ -573,6 +618,9 @@
   </style>
 </head>
 <body>
+  <!-- Skip to main content link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
   <div class="container">
     <!-- Header -->
     <header class="site-header">
@@ -583,10 +631,10 @@
       <p class="subtitle">Autonomous keyboard accessibility auditing, code repair, and verification pipeline.</p>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
       <!-- Control Panel -->
       <section class="control-panel" aria-labelledby="controls-heading">
-        <h2 id="controls-heading" class="visually-hidden" style="display:none;">Audit Controls</h2>
+        <h2 id="controls-heading" class="visually-hidden">Audit Controls</h2>
         <form id="runForm">
           <div class="form-group">
             <label for="urlInput">Target Page URL or Local Fixture Path</label>
@@ -664,15 +712,15 @@
         <span id="fallbackText">Replaying a saved run (cached demo)</span>
       </div>
 
-      <!-- Prominent Result Banner -->
-      <div id="resultBanner" class="result-banner" role="status" aria-live="polite">
-        <span class="banner-icon" id="bannerIcon" aria-hidden="true">✓</span>
-        <span id="bannerText">Task status announcement</span>
+      <!-- Prominent Result Banner (Live region always present in DOM) -->
+      <div id="resultBanner" class="result-banner" role="status" aria-live="polite" aria-atomic="true">
+        <span class="banner-icon" id="bannerIcon" aria-hidden="true"></span>
+        <span id="bannerText"></span>
       </div>
 
       <!-- Metric Cards -->
       <section class="metrics-grid" aria-labelledby="metrics-heading">
-        <h2 id="metrics-heading" class="visually-hidden" style="display:none;">Summary Metrics</h2>
+        <h2 id="metrics-heading" class="visually-hidden">Summary Metrics</h2>
         <div class="metric-card">
           <div class="metric-label">Axe WCAG Violations</div>
           <div class="metric-value" id="metricAxe">0 → 0</div>
@@ -692,7 +740,7 @@
 
       <!-- Four Accessible Tabs -->
       <section class="tabs-section" aria-labelledby="tabs-heading">
-        <h2 id="tabs-heading" class="visually-hidden" style="display:none;">Detailed Results</h2>
+        <h2 id="tabs-heading" class="visually-hidden">Detailed Results</h2>
         <div role="tablist" aria-label="AccessFix Inspection Tabs">
           <button
             role="tab"
@@ -886,7 +934,8 @@
         updateStageUI(st, 'pending', 'Awaiting run...');
       });
       resultBanner.className = 'result-banner';
-      resultBanner.style.display = 'none';
+      bannerIcon.textContent = '';
+      bannerText.textContent = '';
       const fallbackNotice = document.getElementById('fallbackNotice');
       if (fallbackNotice) {
         fallbackNotice.style.display = 'none';
@@ -1142,12 +1191,10 @@
           const isSuccess = Boolean(result?.agentAfter?.success);
           if (isSuccess) {
             resultBanner.className = 'result-banner success';
-            resultBanner.style.display = 'flex';
             bannerIcon.textContent = '✓';
             bannerText.textContent = `Task completed in ${result?.agentAfter?.steps ?? 5} steps`;
           } else {
             resultBanner.className = 'result-banner failure';
-            resultBanner.style.display = 'flex';
             bannerIcon.textContent = '✕';
             bannerText.textContent = `Task failed: ${result?.agentAfter?.stuckAt || 'Goal could not be completed'}`;
           }

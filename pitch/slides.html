@@ -41,8 +41,24 @@
 
     /* Universal Accessible Focus Indicator */
     *:focus-visible {
-      outline: 3px solid var(--primary) !important;
-      outline-offset: 3px !important;
+      outline: 3px solid var(--primary);
+      outline-offset: 3px;
+    }
+
+    h1[tabindex="-1"]:focus {
+      outline: none;
+    }
+
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
     }
 
     /* App Container */
@@ -638,7 +654,8 @@
             Watch the Blind Agent get trapped, synthesize code repairs, and re-verify success.
           </p>
 
-          <div id="countdownTimer" class="timer-display" role="timer" aria-live="polite">03:00</div>
+          <div id="countdownTimer" class="timer-display" role="timer">03:00</div>
+          <div id="timerAnnouncer" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></div>
 
           <p class="timer-hint">
             Press <kbd class="kbd-tag">T</kbd> to start / pause the 3-minute pitch countdown
@@ -847,6 +864,16 @@
       }
     }
 
+    function announceTimer(msg) {
+      const announcer = document.getElementById('timerAnnouncer');
+      if (announcer) {
+        announcer.textContent = '';
+        setTimeout(() => {
+          announcer.textContent = msg;
+        }, 50);
+      }
+    }
+
     function toggleTimer() {
       if (timerRunning) {
         clearInterval(timerInterval);
@@ -858,6 +885,7 @@
         }
         timerRunning = true;
         updateTimerUI();
+        announceTimer('Timer started');
         timerInterval = setInterval(() => {
           if (timerRemaining > 0) {
             timerRemaining--;
@@ -866,6 +894,7 @@
             clearInterval(timerInterval);
             timerRunning = false;
             updateTimerUI();
+            announceTimer('Timer expired');
           }
         }, 1000);
       }

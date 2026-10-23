@@ -82,7 +82,20 @@ export function getExhaustedProviders() {
   return result;
 }
 
-// Calls Gemini using official @google/genai SDK (no retry delay on error)
+// Wraps a promise with a strict timeout to prevent indefinite hangs
+function withTimeout(promise, timeoutMs = 10000, name = 'LLM operation') {
+  let timer;
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(`${name} timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timer) clearTimeout(timer);
+  });
+}
+
+// Calls Gemini using official @google/genai SDK (no retry delay on error, 10s strict timeout)
 async function callGemini({ prompt, systemPrompt, temperature, config }) {
   const { GoogleGenAI } = await import('@google/genai');
   const apiKey = config.geminiApiKey || process.env.GEMINI_API_KEY?.trim();
@@ -93,7 +106,7 @@ async function callGemini({ prompt, systemPrompt, temperature, config }) {
   }
 
   const ai = new GoogleGenAI({ apiKey });
-  const response = await ai.models.generateContent({
+  const callPromise = ai.models.generateContent({
     model,
     contents: prompt,
     config: {
@@ -103,14 +116,15 @@ async function callGemini({ prompt, systemPrompt, temperature, config }) {
     },
   });
 
+  const response = await withTimeout(callPromise, 10000, `Gemini API call (${model})`);
   return response.text || '';
 }
 
-// Calls Groq using official groq-sdk package (no retry delay on error)
+// Calls Groq using official groq-sdk package (no retry delay on error, 10s strict timeout)
 async function callGroq({ prompt, systemPrompt, temperature, config }) {
   const { Groq } = await import('groq-sdk');
   const apiKey = config.groqApiKey || process.env.GROQ_API_KEY?.trim();
-  const model = config.groqModel || process.env.GROQ_MODEL?.trim() || 'llama-3.3-70b-versatile';
+  const model = config.groqModel || process.env.GROQ_MODEL?.trim() || 'openai/gpt-oss-120b';
 
   if (!apiKey) {
     throw new Error('GROQ_API_KEY is not configured in .env');
@@ -123,17 +137,18 @@ async function callGroq({ prompt, systemPrompt, temperature, config }) {
   }
   messages.push({ role: 'user', content: prompt });
 
-  const completion = await groq.chat.completions.create({
+  const callPromise = groq.chat.completions.create({
     model,
     messages,
     ...(temperature !== undefined ? { temperature } : {}),
     response_format: { type: 'json_object' },
   });
 
+  const completion = await withTimeout(callPromise, 10000, `Groq API call (${model})`);
   return completion.choices[0]?.message?.content || '';
 }
 
-// Calls OpenRouter via standard HTTP fetch (no retry delay on error)
+// Calls OpenRouter via standard HTTP fetch (no retry delay on error, 10s strict timeout)
 async function callOpenRouter({ prompt, systemPrompt, temperature, config }) {
   const apiKey = config.openrouterApiKey || process.env.OPENROUTER_API_KEY?.trim();
   const model = config.openrouterModel || process.env.OPENROUTER_MODEL?.trim() || 'openai/gpt-4o-mini';
@@ -148,8 +163,9 @@ async function callOpenRouter({ prompt, systemPrompt, temperature, config }) {
   }
   messages.push({ role: 'user', content: prompt });
 
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const callPromise = fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
+    signal: AbortSignal.timeout(10000),
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
@@ -163,6 +179,8 @@ async function callOpenRouter({ prompt, systemPrompt, temperature, config }) {
       response_format: { type: 'json_object' },
     }),
   });
+
+  const res = await withTimeout(callPromise, 10000, `OpenRouter API call (${model})`);
 
   if (!res.ok) {
     const errBody = await res.text().catch(() => '');

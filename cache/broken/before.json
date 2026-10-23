@@ -1,11 +1,11 @@
 {
   "site": "broken",
   "stage": "before",
-  "timestamp": "2026-10-22T21:53:08.666Z",
+  "timestamp": "2026-10-23T14:51:45.255Z",
   "data": {
-    "siteName": "broken",
     "url": "file:///Users/nitinsharma/Downloads/fetch ai hackathon/demo-sites/broken.html",
-    "scannedAt": "2026-10-22T21:53:08.666Z",
+    "siteName": "broken",
+    "title": "Brew & Bean Weekly",
     "axeSummary": {
       "totalViolations": 7,
       "byImpact": {
@@ -152,412 +152,34 @@
       }
     ],
     "ariaTree": "- text: \"Special edition: The Ethiopian Yirgacheffe Guide is out!\"\n- button:\n  - img\n- text: Brew & Bean\n- img\n- heading \"Brew & Bean Weekly\" [level=1]\n- heading \"Your artisanal roast digest delivered every Monday\" [level=4]\n- textbox \"Enter your email address\"\n- paragraph: We curate stories, never spam. Unsubscribe anytime with one click.\n- text: Subscribe",
+    "screenshot": "/Users/nitinsharma/Downloads/fetch ai hackathon/cache/broken/before.png",
     "keyboard": {
-      "totalTabs": 40,
-      "tabHistory": [
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        },
-        {
-          "candidateId": "0",
-          "tag": "button",
-          "role": "button",
-          "accessibleName": "UNLABELLED",
-          "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
-        },
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
-        }
-      ],
       "unreachableElements": [
         {
           "tag": "div",
-          "role": "div",
+          "role": "button",
           "selector": "div.btn-subscribe",
-          "text": "Subscribe",
-          "html": "<div class=\"btn-subscribe\" onclick=\"handleSubscribe()\" data-accessfix-id=\"2\">\n          Subscribe\n        </div>"
-        }
-      ],
-      "focusTrap": null,
-      "elementsWithoutVisibleFocus": [
-        {
-          "candidateId": "1",
-          "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
-          "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+          "html": "<div class=\"btn-subscribe\" onclick=\"handleSubscribe()\">\n          Subscribe\n        </div>",
+          "text": "Subscribe"
         }
       ],
       "elementsWithoutAccessibleNames": [
         {
-          "candidateId": "0",
           "tag": "button",
           "role": "button",
-          "accessibleName": "UNLABELLED",
           "selector": "button.banner-close",
-          "hasVisibleFocusIndicator": true,
-          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\" data-accessfix-id=\"0\">\n      <svg viewBox=\"0 0 24 24\" fill=\"n"
+          "html": "<button class=\"banner-close\" onclick=\"document.getElementById('promoBanner').style.display='none'\">\n      <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke-width=\"2\" ",
+          "accessibleName": "UNLABELLED"
         },
         {
-          "candidateId": "1",
           "tag": "input",
-          "role": "input",
-          "accessibleName": "UNLABELLED",
+          "role": "textbox",
           "selector": "#emailInput",
-          "hasVisibleFocusIndicator": false,
-          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" data-accessfix-id=\"1\">"
+          "html": "<input type=\"email\" id=\"emailInput\" placeholder=\"Enter your email address\" style=\"\">",
+          "accessibleName": "UNLABELLED"
         }
-      ]
-    },
-    "screenshot": "/Users/nitinsharma/Downloads/fetch ai hackathon/cache/broken/before.png"
+      ],
+      "elementsWithoutVisibleFocus": []
+    }
   }
 }

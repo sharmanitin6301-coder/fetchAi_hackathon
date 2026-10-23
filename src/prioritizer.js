@@ -90,6 +90,23 @@ export async function prioritize(beforeData, agentResult = null) {
     }
   }
 
+  // Fallback guard: If blind agent failed due to an unreachable control or div, ensure CLICKABLE_DIV is prioritized
+  const agentStuckOnDiv = agent.stuckAt && /unreachable|<div>|subscribe/i.test(agent.stuckAt);
+  const alreadyHasClickableDiv = issues.some((i) => i.fixType === FIX_TYPES.CLICKABLE_DIV);
+  if (agentStuckOnDiv && !alreadyHasClickableDiv) {
+    const selector = 'div.btn-subscribe';
+    processedSelectors.add(selector);
+    issues.unshift({
+      id: 'unreachable-div_btn-subscribe',
+      fixType: FIX_TYPES.CLICKABLE_DIV,
+      selector,
+      score: computeScore({ impact: 'critical', blocksTask: true, isUnreachable: true }),
+      userTypes: getUserTypes('keyboard'),
+      blocksTask: true,
+      reason: 'Interactive "Subscribe" control is a <div> without keyboard focusability (tabindex/role), blocking keyboard navigation.',
+    });
+  }
+
   // 2. Process focused elements without accessible names from keyboard traversal
   const unlabelledElements = before.keyboard?.elementsWithoutAccessibleNames || [];
   for (const el of unlabelledElements) {

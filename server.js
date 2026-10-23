@@ -18,6 +18,7 @@ import { getExhaustedProviders } from './src/llm.js';
 
 const app = express();
 const port = parseInt(process.env.PORT || '3000', 10);
+const host = process.env.HOST || '0.0.0.0';
 const publicDir = path.resolve('public');
 
 // Request parsing & security limits
@@ -35,60 +36,134 @@ app.get('/', (req, res) => {
 // Active runs memory store
 const runs = new Map();
 
-// Validates input target URL or local file path
+// Validates input target URL or local file path with SSRF & arbitrary file access prevention
 function validateInputTarget(input) {
-  if (!input || typeof input !== 'string') {
-    throw new Error('Target URL or file path is required.');
+  const targetStr = input && typeof input === 'string' ? input.trim() : 'demo-sites/broken.html';
+
+  if (!targetStr) {
+    return { type: 'file', target: 'demo-sites/broken.html', siteName: 'broken' };
   }
 
-  const trimmed = input.trim();
-
-  // Prevent path traversal
-  if (trimmed.includes('..') || trimmed.includes('\0')) {
+  // Prevent path traversal and null bytes
+  if (targetStr.includes('..') || targetStr.includes('\0')) {
     throw new Error('Invalid path: Directory traversal not permitted.');
   }
 
   // Handle web URLs
-  if (/^https?:\/\//i.test(trimmed)) {
+  if (/^https?:\/\//i.test(targetStr)) {
     try {
-      const parsed = new URL(trimmed);
-      const host = parsed.hostname.toLowerCase();
-
-      // Block cloud metadata services and internal link-local / non-routable IPs
-      if (
-        host === '169.254.169.254' ||
-        host === 'metadata.google.internal' ||
-        host.startsWith('10.') ||
-        host.startsWith('192.168.') ||
-        /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host)
-      ) {
-        throw new Error('Access to private metadata or internal subnets is prohibited.');
+      const parsed = new URL(targetStr);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        throw new Error('Only HTTP and HTTPS protocols are permitted.');
       }
 
-      // Allow localhost or standard public URLs
-      return { type: 'web', target: trimmed, siteName: host.replace(/[^a-zA-Z0-9_-]/g, '_') };
+      const host = parsed.hostname.toLowerCase();
+      const cleanHost = host.replace(/^\[|\]$/g, '');
+
+      // SSRF Protection: Block loopback, local, cloud metadata, and private network addresses
+      const isLoopbackOrLocal =
+        cleanHost === 'localhost' ||
+        cleanHost.endsWith('.localhost') ||
+        cleanHost === '127.0.0.1' ||
+        cleanHost === '0.0.0.0' ||
+        cleanHost === '::1' ||
+        cleanHost === '0:0:0:0:0:0:0:1' ||
+        cleanHost.startsWith('127.') ||
+        cleanHost.startsWith('0.');
+
+      const isCloudMetadata =
+        cleanHost === '169.254.169.254' ||
+        cleanHost === 'metadata.google.internal' ||
+        cleanHost === 'metadata.google' ||
+        cleanHost === 'instance-data' ||
+        cleanHost.startsWith('169.254.');
+
+      const isPrivateSubnet =
+        cleanHost.startsWith('10.') ||
+        cleanHost.startsWith('192.168.') ||
+        /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(cleanHost) ||
+        /^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./.test(cleanHost) ||
+        /^198\.(1[8-9])\./.test(cleanHost) ||
+        cleanHost.startsWith('fe80:') ||
+        cleanHost.startsWith('fc') ||
+        cleanHost.startsWith('fd');
+
+      const isNumericOrHexHost = /^\d+$/.test(cleanHost) || /^0x[0-9a-fA-F]+$/i.test(cleanHost);
+
+      if (isLoopbackOrLocal || isCloudMetadata || isPrivateSubnet || isNumericOrHexHost) {
+        throw new Error('Access to private metadata, loopback, or internal subnets is prohibited (SSRF prevention).');
+      }
+
+      return {
+        type: 'web',
+        target: targetStr,
+        siteName: cleanHost.replace(/[^a-zA-Z0-9_-]/g, '_'),
+      };
     } catch (err) {
-      throw new Error(`Invalid URL: ${err.message}`);
+      throw new Error(`Invalid URL or SSRF blocked: ${err.message}`);
     }
   }
 
-  // Handle local filesystem targets
-  const resolved = path.resolve(trimmed);
-  const cwd = process.cwd();
+  // Handle local filesystem targets: strictly allowlist safe predefined demo fixtures
+  const normalized = targetStr.replace(/^\.?\//, '').toLowerCase();
 
-  // Restrict to workspace project folder and demo-sites
-  if (!resolved.startsWith(cwd)) {
-    throw new Error('File access outside project workspace is prohibited.');
+  if (
+    normalized === 'demo-sites/broken.html' ||
+    normalized === 'broken.html' ||
+    normalized === 'broken'
+  ) {
+    return {
+      type: 'file',
+      target: 'demo-sites/broken.html',
+      siteName: 'broken',
+    };
   }
 
-  // Restrict from accessing sensitive internal directories
-  const relative = path.relative(cwd, resolved);
-  if (relative.startsWith('.git') || relative.startsWith('node_modules') || relative.startsWith('.env')) {
-    throw new Error('Access to system or sensitive files is prohibited.');
+  if (
+    normalized === 'demo-sites/fixed.html' ||
+    normalized === 'fixed.html' ||
+    normalized === 'fixed'
+  ) {
+    return {
+      type: 'file',
+      target: 'demo-sites/fixed.html',
+      siteName: 'fixed',
+    };
   }
 
-  const baseName = path.basename(resolved, path.extname(resolved)) || 'broken';
-  return { type: 'file', target: relative, siteName: baseName };
+  throw new Error(
+    'Arbitrary file access is prohibited. Allowed fixtures: demo-sites/broken.html, demo-sites/fixed.html.'
+  );
+}
+
+// Bearer token authentication middleware for Agentverse API
+function authenticateAgentToken(req, res, next) {
+  const configuredToken = process.env.ACCESSFIX_AGENT_TOKEN?.trim();
+  if (!configuredToken) {
+    console.error('[server] Auth Error: ACCESSFIX_AGENT_TOKEN environment variable is not configured.');
+    return res.status(500).json({
+      error: 'Agent API authentication is unconfigured on server (ACCESSFIX_AGENT_TOKEN is not set).',
+    });
+  }
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      error: 'Unauthorized: Missing or malformed Authorization header. Expected "Bearer <token>".',
+    });
+  }
+
+  const providedToken = authHeader.slice(7).trim();
+  const providedBuf = Buffer.from(providedToken, 'utf-8');
+  const configuredBuf = Buffer.from(configuredToken, 'utf-8');
+
+  if (providedBuf.length !== configuredBuf.length || !crypto.timingSafeEqual(providedBuf, configuredBuf)) {
+    return res.status(403).json({
+      error: 'Forbidden: Invalid agent authorization token.',
+    });
+  }
+
+  next();
 }
 
 // Emits Server-Sent Event to all active clients for a run and records event history
@@ -104,6 +179,15 @@ function emitRunEvent(run, eventName, payload) {
   }
   run.eventHistory.push({ eventName, data });
 
+  if (eventName === 'stage' && payload?.stage) {
+    run.stage = payload.stage;
+  }
+  if (eventName === 'error') {
+    run.status = 'failed';
+    run.error = payload?.message || payload?.error || 'Run failed';
+    run.completedAt = new Date().toISOString();
+  }
+
   run.clients.forEach((client) => {
     try {
       client.write(`event: ${eventName}\ndata: ${data}\n\n`);
@@ -115,12 +199,12 @@ function emitRunEvent(run, eventName, payload) {
 
 // Loads cached run artifacts for demo-mode execution
 async function loadCachedRunData(siteName) {
-  const [beforeCache, agentBeforeCache, prioritizedCache, verificationCache, opsCache] = await Promise.all([
+  const [beforeCache, agentBeforeCache, prioritizedCache, verificationCache, fixCache] = await Promise.all([
     readStageCache(siteName, 'before'),
     readStageCache(siteName, 'agent_before'),
     readStageCache(siteName, 'prioritized'),
     readStageCache(siteName, 'verification'),
-    readStageCache(siteName, 'ops'),
+    readStageCache(siteName, 'fix'),
   ]);
 
   const cacheDir = await getSiteCacheDir(siteName);
@@ -140,15 +224,25 @@ async function loadCachedRunData(siteName) {
     originalHtml = await fs.readFile(path.resolve('demo-sites', `${siteName}.html`), 'utf-8');
   } catch {}
 
+  let appliedOps = fixCache?.data?.appliedOps || [];
+  if (appliedOps.length === 0) {
+    try {
+      const rawOps = await fs.readFile(path.join(cacheDir, 'ops.json'), 'utf-8');
+      const parsedOps = JSON.parse(rawOps);
+      appliedOps = parsedOps.appliedOps || [];
+    } catch {}
+  }
+
   const vData = verificationCache?.data || {};
+  const isFixedSite = siteName === 'fixed';
 
   return {
-    axeBefore: vData.axeBefore ?? beforeCache?.data?.axeSummary?.totalViolations ?? 7,
+    axeBefore: vData.axeBefore ?? beforeCache?.data?.axeSummary?.totalViolations ?? (isFixedSite ? 0 : 7),
     axeAfter: vData.axeAfter ?? 0,
     agentBefore: vData.agentBefore ?? {
-      success: agentBeforeCache?.data?.success ?? false,
-      steps: agentBeforeCache?.data?.steps ?? 12,
-      stuckAt: agentBeforeCache?.data?.stuckAt || 'Element "#emailInput" focused 4 times without completing task.',
+      success: agentBeforeCache?.data?.success ?? isFixedSite,
+      steps: agentBeforeCache?.data?.steps ?? 5,
+      stuckAt: agentBeforeCache?.data?.stuckAt || (isFixedSite ? null : 'Element "#emailInput" focused 4 times without completing task.'),
     },
     agentAfter: vData.agentAfter ?? {
       success: true,
@@ -156,7 +250,7 @@ async function loadCachedRunData(siteName) {
       stuckAt: null,
     },
     diff: diffContent,
-    ops: opsCache?.data?.appliedOps || [],
+    ops: appliedOps,
     layoutFlags: vData.layoutFlags || [],
     transcripts: vData.transcripts || { before: [], after: [] },
     needsHuman: prioritizedCache?.data?.needsHuman || [],
@@ -184,6 +278,8 @@ async function replayCachedRun(run, { isFallback = false } = {}) {
   if (!runJson || !Array.isArray(runJson.events) || runJson.events.length === 0) {
     run.status = 'failed';
     const notice = `No saved run cache found for site "${run.siteName}". Please run a live analysis first or record a cache with "npm run record".`;
+    run.error = notice;
+    run.completedAt = new Date().toISOString();
     console.warn(`[server] ${notice}`);
     emitRunEvent(run, 'error', {
       status: 'failed',
@@ -202,19 +298,23 @@ async function replayCachedRun(run, { isFallback = false } = {}) {
     } else if (evt.event === 'complete') {
       const cachedData = evt.data || (await loadCachedRunData(run.siteName));
       run.data = cachedData;
+      run.result = evt.result || {
+        axeBefore: cachedData.axeBefore,
+        axeAfter: cachedData.axeAfter,
+        agentBefore: cachedData.agentBefore,
+        agentAfter: cachedData.agentAfter,
+        fixesCount: cachedData.ops?.length || 0,
+        layoutFlagsCount: cachedData.layoutFlags?.length || 0,
+        needsHumanCount: cachedData.needsHuman?.length || 0,
+      };
+      run.verificationStatus = (run.result?.agentAfter?.success ?? cachedData.agentAfter?.success) ? 'passed' : 'failed';
       run.status = 'completed';
+      run.stage = 'complete';
+      run.completedAt = new Date().toISOString();
 
       emitRunEvent(run, 'complete', {
         status: 'success',
-        result: evt.result || {
-          axeBefore: cachedData.axeBefore,
-          axeAfter: cachedData.axeAfter,
-          agentBefore: cachedData.agentBefore,
-          agentAfter: cachedData.agentAfter,
-          fixesCount: cachedData.ops?.length || 0,
-          layoutFlagsCount: cachedData.layoutFlags?.length || 0,
-          needsHumanCount: cachedData.needsHuman?.length || 0,
-        },
+        result: run.result,
         data: cachedData,
       });
     } else {
@@ -228,9 +328,10 @@ async function executePipeline(run) {
   run.status = 'running';
 
   const isDemoCache = process.env.DEMO_CACHE === 'true';
-  const shouldReplay = isDemoCache || run.useCache;
+  const shouldReplay = run.isExplicitLive ? false : (isDemoCache || run.useCache);
 
   if (shouldReplay) {
+    run.mode = 'cached';
     // User ticked 'Use cached demo' or DEMO_CACHE=true in .env
     emitRunEvent(run, 'fallback', {
       reason: 'user_cached',
@@ -251,78 +352,73 @@ async function executePipeline(run) {
   }
 
   // Live execution mode
+  run.mode = 'live';
   console.log(`[server] Executing pipeline in LIVE mode for "${run.url}"...`);
+
+  const LIVE_TIMEOUT_MS = 105000; // 105s top-level timeout to prevent orphaned background runs
+  let timeoutTimer = null;
+
   try {
-    // 1. Scan Stage
-    emitRunEvent(run, 'stage', {
-      stage: 'scan',
-      status: 'running',
-      message: 'Launching Chromium: running Axe WCAG audit and keyboard traversal...',
-    });
-    const scanResult = await scanPage(run.url, run.siteName);
-    emitRunEvent(run, 'stage', {
-      stage: 'scan',
-      status: 'completed',
-      message: `Scan complete: ${scanResult.axeSummary.totalViolations} violations found.`,
-      data: { axeBefore: scanResult.axeSummary.totalViolations },
-    });
-
-    // 2. Task Stage
-    emitRunEvent(run, 'stage', {
-      stage: 'task',
-      status: 'running',
-      message: 'Identifying primary visitor goal from accessible snapshot...',
-    });
-    const task = await findTask('Target Page', scanResult.ariaTree, run.url);
-    emitRunEvent(run, 'stage', {
-      stage: 'task',
-      status: 'completed',
-      message: `Discovered goal: "${task.task}"`,
-      data: { task: task.task },
+    const pipelinePromise = verify(run.url, {
+      siteName: run.siteName,
+      timeoutMs: 95000,
+      onProgress: (stage, status, message, data) => {
+        emitRunEvent(run, 'stage', {
+          stage,
+          status,
+          message,
+          data,
+        });
+      },
     });
 
-    // 3. Agent Stage
-    emitRunEvent(run, 'stage', {
-      stage: 'agent',
-      status: 'running',
-      message: 'Executing Blind Agent keyboard navigation on initial page...',
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutTimer = setTimeout(() => {
+        reject(new Error(`Live pipeline execution exceeded ${LIVE_TIMEOUT_MS / 1000}s timeout.`));
+      }, LIVE_TIMEOUT_MS);
     });
 
-    // 4. Fix Stage
-    emitRunEvent(run, 'stage', {
-      stage: 'fix',
-      status: 'running',
-      message: 'Synthesizing repairs and generating working copy...',
-    });
-
-    // 5. Verify Stage
-    emitRunEvent(run, 'stage', {
-      stage: 'verify',
-      status: 'running',
-      message: 'Executing end-to-end verification loop with layout check and transcripts...',
-    });
-
-    const verificationResult = await verify(run.url);
+    const verificationResult = await Promise.race([pipelinePromise, timeoutPromise]);
+    if (timeoutTimer) clearTimeout(timeoutTimer);
 
     const cachedData = await loadCachedRunData(run.siteName);
     run.data = cachedData;
+    run.result = {
+      axeBefore: verificationResult.axeBefore,
+      axeAfter: verificationResult.axeAfter,
+      agentBefore: verificationResult.agentBefore,
+      agentAfter: verificationResult.agentAfter,
+      fixesCount: run.data.ops?.length || 0,
+      layoutFlagsCount: verificationResult.layoutFlags?.length || 0,
+      needsHumanCount: run.data.needsHuman?.length || 0,
+    };
+    run.verificationStatus = verificationResult.agentAfter?.success ? 'passed' : 'failed';
     run.status = 'completed';
+    run.stage = 'complete';
+    run.completedAt = new Date().toISOString();
 
     emitRunEvent(run, 'complete', {
       status: 'success',
-      result: {
-        axeBefore: verificationResult.axeBefore,
-        axeAfter: verificationResult.axeAfter,
-        agentBefore: verificationResult.agentBefore,
-        agentAfter: verificationResult.agentAfter,
-        fixesCount: run.data.ops.length,
-        layoutFlagsCount: verificationResult.layoutFlags.length,
-        needsHumanCount: run.data.needsHuman.length,
-      },
+      result: run.result,
       data: run.data,
     });
   } catch (liveErr) {
-    console.warn(`[server] Live execution failed (${liveErr.message}). Checking for saved cache...`);
+    if (timeoutTimer) clearTimeout(timeoutTimer);
+    console.warn(`[server] Live execution failed (${liveErr.message}).`);
+
+    // In explicit live mode, NEVER fall back to cache — report genuine live failure
+    if (run.isExplicitLive || run.allowFallback === false) {
+      console.error(`[server] Live test failed without fallback: ${liveErr.message}`);
+      run.status = 'failed';
+      run.stage = 'failed';
+      run.error = `Live execution failed: ${liveErr.message}`;
+      run.completedAt = new Date().toISOString();
+      emitRunEvent(run, 'error', {
+        status: 'failed',
+        message: run.error,
+      });
+      return;
+    }
 
     // 2.3 if live execution fails on a site with no cache, emit an error event with a clear message. Never claim success from an empty cache.
     const cacheDir = await getSiteCacheDir(run.siteName);
@@ -341,14 +437,17 @@ async function executePipeline(run) {
     if (!hasCache) {
       console.error(`[server] Live execution failed and no cached run exists for site "${run.siteName}".`);
       run.status = 'failed';
+      run.error = `Live execution failed: ${liveErr.message}. No saved demo run exists for "${run.siteName}".`;
+      run.completedAt = new Date().toISOString();
       emitRunEvent(run, 'error', {
         status: 'failed',
-        message: `Live execution failed: ${liveErr.message}. No saved demo run exists for "${run.siteName}".`,
+        message: run.error,
       });
       return;
     }
 
     // Emit fallback event for UI notification banner (automatic fallback)
+    run.mode = 'auto_fallback';
     emitRunEvent(run, 'fallback', {
       reason: 'auto_fallback',
       message: 'Live AI busy, replaying saved run',
@@ -361,9 +460,11 @@ async function executePipeline(run) {
     } catch (replayErr) {
       console.error(`[server] Fallback replay also failed:`, replayErr);
       run.status = 'failed';
+      run.error = replayErr.message || 'Execution halted.';
+      run.completedAt = new Date().toISOString();
       emitRunEvent(run, 'error', {
         status: 'failed',
-        message: replayErr.message || 'Execution halted.',
+        message: run.error,
       });
     }
   }
@@ -434,6 +535,10 @@ app.get('/health', async (req, res) => {
         exhausted: Boolean(exhausted.openrouter),
       },
     },
+    agentApi: {
+      configured: Boolean(process.env.ACCESSFIX_AGENT_TOKEN?.trim()),
+      endpoints: ['POST /api/agent/runs', 'GET /api/agent/runs/:runId'],
+    },
     timestamp: new Date().toISOString(),
   };
 
@@ -480,6 +585,11 @@ app.get('/health', async (req, res) => {
       <li>
         <strong>DEMO_CACHE Active:</strong> ${isDemoCache ? '<span style="color:#166534">YES (forced cache mode)</span>' : '<span style="color:#6B7280">NO (controlled by UI checkbox)</span>'}
       </li>
+      <li>
+        <strong>Agent API (Agentverse Integration):</strong><br>
+        • Status: ${process.env.ACCESSFIX_AGENT_TOKEN?.trim() ? '<span style="color:#166534">Configured (ACCESSFIX_AGENT_TOKEN set)</span>' : '<span style="color:#D97706">Unset (Set ACCESSFIX_AGENT_TOKEN for agent calls)</span>'}<br>
+        • Endpoints: <code>POST /api/agent/runs</code>, <code>GET /api/agent/runs/:runId</code>
+      </li>
     </ul>
     <p><a href="/">← Return to AccessFix Dashboard</a> | <a href="/health?format=json">View as JSON</a></p>
   </div>
@@ -490,25 +600,182 @@ app.get('/health', async (req, res) => {
   return res.status(200).json(healthData);
 });
 
-// POST /run — starts pipeline and returns runId
-app.post('/run', async (req, res) => {
+// ============================================================================
+// Agentverse Hosted Agent API Endpoints (Bearer Token Protected)
+// ============================================================================
+
+// POST /api/agent/runs — Authenticated Agentverse API to trigger an accessibility audit
+app.post('/api/agent/runs', authenticateAgentToken, async (req, res) => {
   try {
-    const { url, useCache } = req.body || {};
-    const validated = validateInputTarget(url?.trim() || 'demo-sites/broken.html');
+    const { url, target, useCache, mode } = req.body || {};
+    const inputTarget = url || target || 'demo-sites/broken.html';
+    const validated = validateInputTarget(inputTarget);
+    
+    // Explicit live mode check: if useCache === false or mode === 'live', never use cache or auto-fallback
+    const isExplicitLive = useCache === false || mode === 'live';
     const isDemoCache = process.env.DEMO_CACHE === 'true';
+    const defaultCache = validated.type === 'file';
+    const resolvedUseCache = isExplicitLive ? false : (isDemoCache || (useCache !== undefined ? Boolean(useCache) : defaultCache));
 
     const runId = crypto.randomUUID();
     const run = {
       runId,
       url: validated.target,
       siteName: validated.siteName,
-      useCache: isDemoCache || Boolean(useCache),
+      useCache: resolvedUseCache,
+      isExplicitLive,
+      allowFallback: !isExplicitLive,
+      mode: resolvedUseCache ? 'cached' : 'live',
       status: 'pending',
       stage: 'init',
       clients: [],
+      eventHistory: [],
       data: null,
+      result: null,
+      verificationStatus: null,
       error: null,
       createdAt: new Date().toISOString(),
+      completedAt: null,
+    };
+
+    runs.set(runId, run);
+
+    // Asynchronously begin pipeline execution
+    setTimeout(() => executePipeline(run), 20);
+
+    return res.status(202).json({
+      runId,
+      status: 'pending',
+      stage: 'init',
+      siteName: run.siteName,
+      target: run.url,
+      mode: run.mode,
+      isLive: !run.useCache,
+      isCached: run.useCache,
+      useCache: run.useCache,
+      pollUrl: `/api/agent/runs/${runId}`,
+      createdAt: run.createdAt,
+    });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
+});
+
+// GET /api/agent/runs/:runId — Authenticated API to poll status and retrieve final audit results
+app.get('/api/agent/runs/:runId', authenticateAgentToken, (req, res) => {
+  const { runId } = req.params;
+  const run = runs.get(runId);
+
+  if (!run) {
+    return res.status(404).json({ error: 'Run not found.' });
+  }
+
+  const runMode = run.mode || (run.useCache ? 'cached' : 'live');
+  const isLive = !run.useCache;
+  const isCached = Boolean(run.useCache);
+
+  if (run.status === 'pending' || run.status === 'running') {
+    return res.status(200).json({
+      runId: run.runId,
+      status: run.status,
+      stage: run.stage || 'init',
+      mode: runMode,
+      isLive,
+      isCached,
+      siteName: run.siteName,
+      target: run.url,
+      useCache: run.useCache,
+      createdAt: run.createdAt,
+    });
+  }
+
+  if (run.status === 'failed') {
+    return res.status(200).json({
+      runId: run.runId,
+      status: 'failed',
+      stage: run.stage || 'error',
+      mode: runMode,
+      isLive,
+      isCached,
+      siteName: run.siteName,
+      target: run.url,
+      error: run.error || 'Pipeline execution failed.',
+      createdAt: run.createdAt,
+      completedAt: run.completedAt || new Date().toISOString(),
+    });
+  }
+
+  // Completed status
+  const axeBefore = run.result?.axeBefore ?? run.data?.axeBefore ?? 0;
+  const axeAfter = run.result?.axeAfter ?? run.data?.axeAfter ?? 0;
+  const fixesCount = run.result?.fixesCount ?? run.data?.ops?.length ?? 0;
+  const layoutFlagsCount = run.result?.layoutFlagsCount ?? run.data?.layoutFlags?.length ?? 0;
+  const needsHumanCount = run.result?.needsHumanCount ?? run.data?.needsHuman?.length ?? 0;
+
+  const agentBefore = run.result?.agentBefore ?? run.data?.agentBefore ?? null;
+  const agentAfter = run.result?.agentAfter ?? run.data?.agentAfter ?? null;
+
+  return res.status(200).json({
+    runId: run.runId,
+    status: 'completed',
+    stage: 'complete',
+    mode: runMode,
+    isLive,
+    isCached,
+    siteName: run.siteName,
+    target: run.url,
+    useCache: run.useCache,
+    createdAt: run.createdAt,
+    completedAt: run.completedAt || new Date().toISOString(),
+    verificationStatus: run.verificationStatus || (agentAfter?.success ? 'passed' : 'failed'),
+    metrics: {
+      axeBefore,
+      axeAfter,
+      fixesCount,
+      layoutFlagsCount,
+      needsHumanCount,
+    },
+    agentBefore,
+    agentAfter,
+    fixesApplied: run.data?.ops || [],
+    verification: {
+      status: run.verificationStatus || (agentAfter?.success ? 'passed' : 'failed'),
+      layoutFlags: run.data?.layoutFlags || [],
+    },
+    layoutFlags: run.data?.layoutFlags || [],
+    needsHuman: run.data?.needsHuman || [],
+    diff: run.data?.diff || '',
+  });
+});
+
+// POST /run — starts pipeline and returns runId (Browser dashboard endpoint)
+app.post('/run', async (req, res) => {
+  try {
+    const { url, useCache, mode } = req.body || {};
+    const validated = validateInputTarget(url?.trim() || 'demo-sites/broken.html');
+    const isExplicitLive = useCache === false || mode === 'live';
+    const isDemoCache = process.env.DEMO_CACHE === 'true';
+    const resolvedUseCache = isExplicitLive ? false : (isDemoCache || Boolean(useCache));
+
+    const runId = crypto.randomUUID();
+    const run = {
+      runId,
+      url: validated.target,
+      siteName: validated.siteName,
+      useCache: resolvedUseCache,
+      isExplicitLive,
+      allowFallback: !isExplicitLive,
+      mode: resolvedUseCache ? 'cached' : 'live',
+      status: 'pending',
+      stage: 'init',
+      clients: [],
+      eventHistory: [],
+      data: null,
+      result: null,
+      verificationStatus: null,
+      error: null,
+      createdAt: new Date().toISOString(),
+      completedAt: null,
     };
 
     runs.set(runId, run);
@@ -520,6 +787,7 @@ app.post('/run', async (req, res) => {
       runId,
       siteName: run.siteName,
       status: 'started',
+      mode: run.mode,
       useCache: run.useCache,
     });
   } catch (err) {
@@ -678,24 +946,27 @@ app.use((err, req, res, next) => {
 });
 
 // Start Express server
-const server = app.listen(port, () => {
-  console.log(`[server] AccessFix Web Dashboard running at:`);
-  console.log(`         http://localhost:${port}`);
-});
+let server = null;
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(port, host, () => {
+    console.log(`[server] AccessFix Web Dashboard running at:`);
+    console.log(`         http://localhost:${port} (bound to ${host}:${port})`);
+  });
 
-// Startup error handler for EADDRINUSE and network binding failures
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`\n[server] Startup Error: Port ${port} is already in use by another process.`);
-    console.error(`[server] To kill the process using port ${port}:`);
-    console.error(`         kill -9 $(lsof -t -i :${port})`);
-    console.error(`[server] Or run on a different port:`);
-    console.error(`         PORT=${port + 1} node server.js\n`);
-  } else {
-    console.error(`\n[server] Startup Error (${err.code || 'UNKNOWN'}):`, err.message, '\n');
-  }
-  process.exit(1);
-});
+  // Startup error handler for EADDRINUSE and network binding failures
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\n[server] Startup Error: Port ${port} is already in use by another process.`);
+      console.error(`[server] To kill the process using port ${port}:`);
+      console.error(`         kill -9 $(lsof -t -i :${port})`);
+      console.error(`[server] Or run on a different port:`);
+      console.error(`         PORT=${port + 1} node server.js\n`);
+    } else {
+      console.error(`\n[server] Startup Error (${err.code || 'UNKNOWN'}):`, err.message, '\n');
+    }
+    process.exit(1);
+  });
+}
 
 // Process-level guards to ensure server stays alive
 process.on('uncaughtException', (err) => {

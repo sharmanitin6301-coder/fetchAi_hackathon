@@ -167,51 +167,167 @@ export async function generateScreenReaderTranscript(html) {
 }
 
 // Main verification pipeline: runs before/after axe, agent, layout diffs, and screen-reader transcripts
-export async function verify(url) {
+export async function verify(url, options = {}) {
+  const timeoutMs = options.timeoutMs || 100000; // 100-second deadline for the live pipeline
+  const onProgress = typeof options.onProgress === 'function' ? options.onProgress : () => {};
+  const startTime = Date.now();
+  let phase = 'init';
+
+  function checkPipelineTimeout(currentPhase) {
+    phase = currentPhase;
+    const elapsed = Date.now() - startTime;
+    if (elapsed > timeoutMs) {
+      throw new Error(`Verification pipeline timed out after ${Math.round(timeoutMs / 1000)}s during phase "${phase}".`);
+    }
+  }
+
   const targetUrl = resolveTargetUrl(url);
-  const siteName = path.basename(url, path.extname(url)) || 'broken';
-  console.log(`[verifier] Initializing verification pipeline for: ${targetUrl} (site: ${siteName})...`);
+  const siteName = options.siteName || path.basename(url, path.extname(url)) || 'broken';
+  console.log(`[verifier] Initializing verification pipeline for: ${targetUrl} (site: ${siteName}, timeout: ${Math.round(timeoutMs / 1000)}s)...`);
 
-  const browser = await chromium.launch({
-    headless: true,
-    args: ['--single-process', '--no-sandbox', '--disable-gpu'],
-  });
-
+  let browser = null;
   try {
+    checkPipelineTimeout('browser_launch');
+    browser = await chromium.launch({
+      headless: true,
+      args: ['--single-process', '--no-sandbox', '--disable-gpu'],
+    });
+
     const context = await browser.newContext();
     const page = await context.newPage();
 
-    // 1. Navigate to original page
-    await page.goto(targetUrl, { waitUntil: 'networkidle' });
+    // 1. Navigate to original page and run initial Axe scan
+    checkPipelineTimeout('initial_navigation');
+    onProgress('scan', 'running', 'Launching Chromium and evaluating Axe WCAG accessibility violations...');
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {});
 
-    // Step 1: Run initial Axe scan
+    // Step 1: Run initial Axe scan & capture artifacts
+    checkPipelineTimeout('initial_axe_scan');
     const initialViolations = await runAxeScan(page);
     const axeBefore = initialViolations.length;
     console.log(`[verifier] Initial Axe violations: ${axeBefore}`);
 
-    // Step 2: Measure initial layout bounding boxes
-    const beforeBoxes = await getBoundingBoxes(page);
+    const cacheDir = await getSiteCacheDir(siteName);
+    const beforeScreenshotPath = path.join(cacheDir, 'before.png');
+    await page.screenshot({ path: beforeScreenshotPath, fullPage: true }).catch(() => {});
 
-    // Step 3: Run Blind Agent on original broken page
     const pageTitle = await page.title();
     const ariaTree = await page.locator('body').ariaSnapshot();
+
+    const keyboardFindings = await page.evaluate(() => {
+      const unreachable = [];
+      const unlabelled = [];
+
+      // Check for non-focusable clickable divs
+      const clickableDivs = Array.from(document.querySelectorAll('div[onclick], div.btn-subscribe, [role="button"]'));
+      clickableDivs.forEach((el) => {
+        if (el.tagName.toLowerCase() === 'div' && !el.hasAttribute('tabindex')) {
+          unreachable.push({
+            tag: 'div',
+            role: 'button',
+            selector: el.className ? `div.${el.className.trim().split(/\s+/)[0]}` : 'div',
+            html: el.outerHTML.slice(0, 160),
+            text: (el.textContent || '').trim().slice(0, 40),
+          });
+        }
+      });
+
+      // Check for unlabelled buttons or inputs
+      const buttons = Array.from(document.querySelectorAll('button'));
+      buttons.forEach((btn) => {
+        const hasName = btn.getAttribute('aria-label') || btn.textContent?.trim();
+        if (!hasName) {
+          unlabelled.push({
+            tag: 'button',
+            role: 'button',
+            selector: btn.className ? `button.${btn.className.trim().split(/\s+/)[0]}` : 'button',
+            html: btn.outerHTML.slice(0, 160),
+            accessibleName: 'UNLABELLED',
+          });
+        }
+      });
+
+      const emailInput = document.querySelector('input[type="email"], #emailInput');
+      if (emailInput) {
+        const hasLabel = Boolean(document.querySelector(`label[for="${emailInput.id}"]`) || emailInput.closest('label') || emailInput.getAttribute('aria-label'));
+        if (!hasLabel) {
+          unlabelled.push({
+            tag: 'input',
+            role: 'textbox',
+            selector: emailInput.id ? `#${emailInput.id}` : 'input[type="email"]',
+            html: emailInput.outerHTML.slice(0, 160),
+            accessibleName: 'UNLABELLED',
+          });
+        }
+      }
+
+      return { unreachableElements: unreachable, elementsWithoutAccessibleNames: unlabelled, elementsWithoutVisibleFocus: [] };
+    });
+
+    // Cache initial scan state so preview and prioritizer have accurate baseline
+    await saveStageCache(siteName, 'before', {
+      url: targetUrl,
+      siteName,
+      title: pageTitle,
+      axeSummary: {
+        totalViolations: axeBefore,
+        byImpact: {
+          critical: initialViolations.filter((v) => v.impact === 'critical').length,
+          serious: initialViolations.filter((v) => v.impact === 'serious').length,
+          moderate: initialViolations.filter((v) => v.impact === 'moderate').length,
+          minor: initialViolations.filter((v) => v.impact === 'minor').length,
+        },
+      },
+      axeViolations: initialViolations,
+      ariaTree,
+      screenshot: beforeScreenshotPath,
+      keyboard: keyboardFindings,
+    });
+
+    onProgress('scan', 'completed', `Scan complete: ${axeBefore} Axe violations detected.`, { axeBefore });
+
+    // Step 2: Measure initial layout bounding boxes
+    checkPipelineTimeout('bounding_boxes_before');
+    const beforeBoxes = await getBoundingBoxes(page);
+
+    // Step 3: Discover visitor goal & run Blind Agent on original broken page
+    checkPipelineTimeout('task_discovery');
+    onProgress('task', 'running', 'Identifying primary visitor goal from accessible snapshot...');
     const task = await findTask(pageTitle, ariaTree, url);
     console.log(`[verifier] Running Blind Agent on original page (Task: "${task.task}")...`);
+    onProgress('task', 'completed', `Discovered goal: "${task.task}"`, { task: task.task });
+
+    checkPipelineTimeout('agent_before');
+    onProgress('agent', 'running', 'Simulating blind user keyboard traversal on initial page...');
     const agentBefore = await runBlindAgent(page, task, {
       siteName,
       runType: 'before',
       maxSteps: 30,
+      maxAttemptDurationMs: 25000,
     });
     console.log(`[verifier] Agent before status: ${agentBefore.success ? 'SUCCESS' : 'FAILED'}`);
+    onProgress('agent', 'completed', `Initial agent completed: ${agentBefore.success ? 'PASSED' : 'FAILED'} (${agentBefore.steps} steps).`, {
+      success: agentBefore.success,
+      steps: agentBefore.steps,
+      stuckAt: agentBefore.stuckAt,
+    });
 
     // Step 4: Make working copy of the page
-    const cacheDir = await getSiteCacheDir(siteName);
+    checkPipelineTimeout('working_copy_init');
     const workingCopyPath = path.join(cacheDir, 'working_copy.html');
     // 2.1 in src/verifier.js, for http(s) URLs get the HTML with page.content() instead of fs.readFile
     const originalHtml = /^https?:\/\//i.test(targetUrl || url)
       ? await page.content()
       : await fs.readFile(path.resolve(url.replace('file://', '')), 'utf-8');
     await fs.writeFile(workingCopyPath, originalHtml, 'utf-8');
+
+    // Run prioritizer if not already present
+    const prioritizedResult = await prioritize(
+      { axeViolations: initialViolations, keyboard: keyboardFindings },
+      agentBefore
+    );
+    await saveStageCache(siteName, 'prioritized', prioritizedResult);
 
     let rounds = 0;
     let agentAfter = null;
@@ -224,38 +340,58 @@ export async function verify(url) {
       rounds = round;
       console.log(`\n--- Verification Round ${round}/${maxRounds} ---`);
 
-      // Run prioritizer & fixer to generate ops on working copy
+      // Run fixer to generate ops on working copy
+      checkPipelineTimeout(`round_${round}_fix`);
+      onProgress('fix', 'running', `Synthesizing semantic repair operations (Round ${round})...`);
       const fixResult = await fix(siteName);
+      onProgress('fix', 'completed', `Generated ${fixResult.appliedOps?.length || 0} semantic operations.`, {
+        fixesApplied: fixResult.appliedOps?.length || 0,
+      });
 
       // Copy patched.html to working copy
       const patchedContent = await fs.readFile(fixResult.patchedHtmlPath, 'utf-8');
       await fs.writeFile(workingCopyPath, patchedContent, 'utf-8');
 
       // Navigate browser to updated working copy
+      checkPipelineTimeout(`round_${round}_navigation`);
+      onProgress('verify', 'running', 'Measuring layout shifts and running Blind Agent on patched working copy...');
       const workingCopyUrl = `file://${workingCopyPath}`;
-      await page.goto(workingCopyUrl, { waitUntil: 'networkidle' });
+      await page.goto(workingCopyUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+      await page.waitForLoadState('networkidle', { timeout: 3000 }).catch(() => {});
 
       // Measure layout shifts
+      checkPipelineTimeout(`round_${round}_layout_check`);
       const afterBoxes = await getBoundingBoxes(page);
       layoutFlags = checkLayoutShifts(beforeBoxes, afterBoxes, fixResult.appliedOps);
 
       // Re-run Axe
+      checkPipelineTimeout(`round_${round}_axe_scan`);
       const afterViolations = await runAxeScan(page);
       axeAfter = afterViolations.length;
       console.log(`[verifier] Round ${round} Axe violations remaining: ${axeAfter}`);
 
       // Re-run Blind Agent on updated working copy
+      checkPipelineTimeout(`round_${round}_agent_after`);
       console.log(`[verifier] Running Blind Agent on patched working copy...`);
       agentAfter = await runBlindAgent(page, task, {
         siteName,
         runType: 'after',
         maxSteps: 30,
+        maxAttemptDurationMs: 25000,
       });
       console.log(`[verifier] Round ${round} Agent status: ${agentAfter.success ? 'SUCCESS' : 'FAILED'}`);
+
+      // Capture after screenshot
+      const afterScreenshotPath = path.join(cacheDir, 'after.png');
+      await page.screenshot({ path: afterScreenshotPath, fullPage: true }).catch(() => {});
 
       // Stop if agent succeeds and axe violations are cleared
       if (agentAfter.success && axeAfter === 0) {
         console.log(`[verifier] Success criteria satisfied in Round ${round}!`);
+        onProgress('verify', 'completed', `Verification PASSED: 0 Axe violations remaining. Blind Agent succeeded in ${agentAfter.steps} steps!`, {
+          axeAfter,
+          agentAfterSteps: agentAfter.steps,
+        });
         break;
       }
 
@@ -270,11 +406,12 @@ Generate revised ops {selector, op, name, value, reason, confidence} to fix rema
         await ask({
           prompt: retryPrompt,
           systemPrompt: 'You are an accessibility code repair tool. Generate JSON repair operations.',
-        });
+        }).catch(() => {});
       }
     }
 
     // Step 6: Screen reader transcripts
+    checkPipelineTimeout('screen_reader_transcripts');
     console.log(`[verifier] Generating screen-reader spoken transcripts...`);
     const patchedHtml = await fs.readFile(workingCopyPath, 'utf-8');
     const transcripts = {
@@ -303,7 +440,9 @@ Generate revised ops {selector, op, name, value, reason, confidence} to fix rema
     await saveStageCache(siteName, 'verification', verificationResult);
     return verificationResult;
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close().catch(() => {});
+    }
   }
 }
 
@@ -348,6 +487,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     res.transcripts.after.slice(0, 5).forEach((p) => console.log(`    - "${p}"`));
 
     console.log('\n======================================================\n');
+    process.exit(0);
   } catch (err) {
     console.error('[verifier] Execution failed:', err);
     process.exit(1);

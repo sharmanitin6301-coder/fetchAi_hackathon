@@ -255,8 +255,17 @@ export async function runBlindAgent(page, task, options = {}) {
     stuckAt = null;
     isSuccess = false;
     const attemptTranscript = [];
+    const attemptStartTime = Date.now();
+    const maxAttemptDurationMs = options.maxAttemptDurationMs || 45000;
 
     for (let step = 1; step <= maxSteps; step++) {
+      // Check attempt timeout
+      if (Date.now() - attemptStartTime > maxAttemptDurationMs) {
+        stuckAt = `Agent attempt ${attempt} timed out after ${Math.round(maxAttemptDurationMs / 1000)}s without achieving success.`;
+        console.warn(`[blindAgent] ${stuckAt}`);
+        break;
+      }
+
       // 1. OBSERVE
       const observation = await observeFocusedElement(page, { step, lastAction });
 
@@ -265,7 +274,17 @@ export async function runBlindAgent(page, task, options = {}) {
       if (focusKey !== 'body') {
         focusCounts[focusKey] = (focusCounts[focusKey] || 0) + 1;
         if (focusCounts[focusKey] >= 4) {
-          stuckAt = `Element '${focusKey}' (${observation.heard}) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex).`;
+          const hasInaccessibleDivButton = await page.evaluate(() => {
+            const btn = document.querySelector('.btn-subscribe, [onclick*="Subscribe"], [onclick*="subscribe"]');
+            return btn && btn.tagName.toLowerCase() === 'div' && !btn.hasAttribute('tabindex');
+          }).catch(() => false);
+
+          if (hasInaccessibleDivButton) {
+            stuckAt = `Element '${focusKey}' (${observation.heard}) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex).`;
+          } else {
+            stuckAt = `Element '${focusKey}' (${observation.heard}) focused 4 times without completing task. Navigation focus loop detected.`;
+          }
+
           const loopEntry = {
             attempt,
             step,

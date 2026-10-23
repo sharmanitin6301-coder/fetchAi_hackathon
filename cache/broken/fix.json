@@ -1,7 +1,7 @@
 {
   "site": "broken",
   "stage": "fix",
-  "timestamp": "2026-10-22T21:53:46.989Z",
+  "timestamp": "2026-10-23T14:51:49.639Z",
   "data": {
     "site": "broken",
     "appliedOps": [
@@ -90,12 +90,6 @@
       }
     ],
     "rejectedOps": [],
-    "needsHuman": [
-      {
-        "id": "focus-emailInput",
-        "selector": "#emailInput",
-        "reason": "possible false positive, browser default focus ring"
-      }
-    ]
+    "needsHuman": []
   }
 }

@@ -86,11 +86,5 @@
     }
   ],
   "rejectedOps": [],
-  "needsHuman": [
-    {
-      "id": "focus-emailInput",
-      "selector": "#emailInput",
-      "reason": "possible false positive, browser default focus ring"
-    }
-  ]
+  "needsHuman": []
 }

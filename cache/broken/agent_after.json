@@ -1,41 +1,46 @@
 {
   "site": "broken",
   "stage": "agent_after",
-  "timestamp": "2026-10-22T17:14:44.454Z",
+  "timestamp": "2026-10-23T14:51:52.841Z",
   "data": {
     "success": true,
     "steps": 5,
     "stuckAt": null,
-    "mode": "llm",
+    "mode": "scripted",
     "transcript": [
       {
+        "attempt": 1,
         "step": 1,
         "heard": "No element focused",
-        "thought": "I need to move focus from nowhere to the first focusable control, which is the Close promo banner button, as a step toward reaching the email textbox and subscribe button.",
+        "thought": "[Scripted Fallback - LLM Unavailable] Pressing Tab to reach promo banner close button.",
         "action": "Tab"
       },
       {
+        "attempt": 1,
         "step": 2,
         "heard": "button, Close promo banner",
-        "thought": "Need to move focus to the email textbox to enter address before subscribing",
+        "thought": "[Scripted Fallback] Pressing Tab to reach the email input.",
         "action": "Tab"
       },
       {
+        "attempt": 1,
         "step": 3,
         "heard": "textbox, Email address",
-        "thought": "The email textbox is focused, so I can enter the address",
-        "action": "Type:user@example.com"
+        "thought": "[Scripted Fallback] Typing email address into email input field.",
+        "action": "Type:alex@example.com"
       },
       {
+        "attempt": 1,
         "step": 4,
         "heard": "textbox, Email address",
-        "thought": "The email has been entered and focus is still on the textbox; I need to move focus to the Subscribe button before I can activate it.",
+        "thought": "[Scripted Fallback] Pressing Tab to reach the Subscribe button.",
         "action": "Tab"
       },
       {
+        "attempt": 1,
         "step": 5,
         "heard": "button, Subscribe",
-        "thought": "The focus is on the Subscribe button, so I should activate it to submit the email",
+        "thought": "[Scripted Fallback] Pressing Enter on the Subscribe button to submit.",
         "action": "Enter"
       }
     ]
