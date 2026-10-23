@@ -92,8 +92,15 @@ export async function recordSite(siteName = 'broken') {
 
   // 7. Assemble combined run.json for UI replay stream
   console.log(`[record] Step 7: Compiling cache/${siteName}/run.json...`);
-  const diffContent = await fs.readFile(path.join(cacheDir, 'fix.diff'), 'utf-8');
-  const patchedHtml = await fs.readFile(patchedPath, 'utf-8');
+  let diffContent = '';
+  try {
+    diffContent = await fs.readFile(path.join(cacheDir, 'fix.diff'), 'utf-8');
+  } catch {}
+
+  let patchedHtml = originalHtml;
+  try {
+    patchedHtml = await fs.readFile(patchedPath, 'utf-8');
+  } catch {}
 
   const runEvents = [
     {
@@ -240,19 +247,29 @@ export async function recordSite(siteName = 'broken') {
   return runJsonPayload;
 }
 
-// CLI runner
+// CLI runner: supports 'npm run record -- fixed', 'npm run record -- broken', or full suite
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   console.log('--- Starting AccessFix Demo Recording ---');
   try {
-    // Record broken.html
-    await recordSite('broken');
+    const rawArgs = process.argv.slice(2).map((a) => a.toLowerCase().replace(/^-+/, '').trim());
+    const isFixedOnly = rawArgs.includes('fixed');
+    const isBrokenOnly = rawArgs.includes('broken');
 
-    // Record fixed.html
-    await recordSite('fixed');
+    if (isFixedOnly && !isBrokenOnly) {
+      console.log('[record] Target: fixed.html only');
+      await recordSite('fixed');
+    } else if (isBrokenOnly && !isFixedOnly) {
+      console.log('[record] Target: broken.html only');
+      await recordSite('broken');
+    } else {
+      console.log('[record] Target: full demo suite (broken.html and fixed.html)');
+      await recordSite('broken');
+      await recordSite('fixed');
+    }
 
     console.log('\n======================================================');
-    console.log('Recording Completed for broken.html and fixed.html!');
-    console.log('Artifacts saved to cache/broken/ and cache/fixed/.');
+    console.log('Recording Completed successfully!');
+    console.log('Artifacts saved to cache/.');
     console.log('======================================================\n');
   } catch (err) {
     console.error('[record] Recording failed:', err);

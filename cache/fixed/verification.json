@@ -1,0 +1,53 @@
+{
+  "site": "fixed",
+  "stage": "verification",
+  "timestamp": "2026-10-23T05:53:20.573Z",
+  "data": {
+    "rounds": 3,
+    "axeBefore": 0,
+    "axeAfter": 0,
+    "agentBefore": {
+      "success": false,
+      "steps": 10,
+      "stuckAt": "Element '#emailInput' (textbox, Email address) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex)."
+    },
+    "agentAfter": {
+      "success": true,
+      "steps": 7,
+      "stuckAt": null
+    },
+    "layoutFlags": [],
+    "transcripts": {
+      "before": [
+        "complimentary, Special announcements",
+        "Special edition: The Ethiopian Yirgacheffe Guide is out!",
+        "button, Close promo banner",
+        "navigation, Main Navigation",
+        "Brew & Bean",
+        "main content",
+        "image, Fresh cup of artisanal coffee with rising steam on warm background",
+        "heading, level 1, Brew & Bean Weekly",
+        "heading, level 2, Your artisanal roast digest delivered every Monday",
+        "edit text, Email address",
+        "We curate stories, never spam. Unsubscribe anytime with one click.",
+        "button, Subscribe",
+        "Thanks for subscribing"
+      ],
+      "after": [
+        "complimentary, Special announcements",
+        "Special edition: The Ethiopian Yirgacheffe Guide is out!",
+        "button, Close promo banner",
+        "navigation, Main Navigation",
+        "Brew & Bean",
+        "main content",
+        "image, Fresh cup of artisanal coffee with rising steam on warm background",
+        "heading, level 1, Brew & Bean Weekly",
+        "heading, level 2, Your artisanal roast digest delivered every Monday",
+        "edit text, Email address",
+        "We curate stories, never spam. Unsubscribe anytime with one click.",
+        "button, Subscribe",
+        "Thanks for subscribing"
+      ]
+    }
+  }
+}

@@ -283,6 +283,14 @@
       border: 2px solid #FCA5A5;
     }
 
+    .result-banner.info {
+      display: flex !important;
+      background: #EFF6FF;
+      color: #1E40AF;
+      border: 2px solid #93C5FD;
+      margin-bottom: 24px;
+    }
+
     .result-banner.warning {
       display: flex !important;
       background: #FFFBEB;
@@ -650,10 +658,10 @@
         </div>
       </section>
 
-      <!-- Live AI Busy Fallback Notification Banner -->
-      <div id="fallbackNotice" class="result-banner warning" role="alert" style="display:none;">
-        <span class="banner-icon" aria-hidden="true">⚠️</span>
-        <span id="fallbackText">Live AI busy, replaying saved run</span>
+      <!-- Replay / Fallback Notification Banner -->
+      <div id="fallbackNotice" class="result-banner" role="status" aria-live="polite" style="display:none;">
+        <span class="banner-icon" id="fallbackIcon" aria-hidden="true">ℹ️</span>
+        <span id="fallbackText">Replaying a saved run (cached demo)</span>
       </div>
 
       <!-- Prominent Result Banner -->
@@ -733,7 +741,8 @@
 
         <!-- Panel 2: Live Preview -->
         <div role="tabpanel" id="panel-preview" aria-labelledby="tab-preview" tabindex="0" hidden>
-          <div class="preview-grid">
+          <div id="previewEmptyState" class="empty-state">No preview available yet. Run AccessFix to view before and after comparisons.</div>
+          <div id="previewGrid" class="preview-grid" style="display: none;">
             <div class="preview-col">
               <h3><span aria-hidden="true">⚠️</span> Original Page (Before)</h3>
               <iframe
@@ -881,18 +890,33 @@
       const fallbackNotice = document.getElementById('fallbackNotice');
       if (fallbackNotice) {
         fallbackNotice.style.display = 'none';
+        fallbackNotice.className = 'result-banner';
       }
+      const previewEmptyState = document.getElementById('previewEmptyState');
+      const previewGrid = document.getElementById('previewGrid');
+      if (previewEmptyState && previewGrid) {
+        previewEmptyState.style.display = 'block';
+        previewGrid.style.display = 'none';
+      }
+      if (beforeIframe) beforeIframe.src = 'about:blank';
+      if (afterIframe) afterIframe.src = 'about:blank';
     }
 
     // Render unified diff with accessible labels and color cues
-    function renderDiff(diffText) {
+    function renderDiff(diffText, fixesCount) {
       const container = document.getElementById('diffContainer');
       container.innerHTML = '';
 
-      if (!diffText || !diffText.trim()) {
+      const text = typeof diffText === 'string' ? diffText.trim() : '';
+
+      if (!text) {
         const empty = document.createElement('div');
         empty.className = 'empty-state';
-        empty.textContent = 'No diff available yet. Run AccessFix to generate a patch.';
+        if (fixesCount === 0) {
+          empty.textContent = 'No code changes needed, the page passed all accessibility checks.';
+        } else {
+          empty.textContent = 'No diff available yet. Run AccessFix to generate a patch.';
+        }
         container.appendChild(empty);
         return;
       }
@@ -901,7 +925,7 @@
       pre.className = 'diff-view';
       pre.setAttribute('aria-label', 'Unified patch diff view');
 
-      const lines = diffText.split('\n');
+      const lines = text.split('\n');
       lines.forEach((line) => {
         const lineEl = document.createElement('div');
         lineEl.className = 'diff-line';
@@ -977,24 +1001,30 @@
     // Render Needs a Human items (layout shifts and review flags)
     function renderNeedsHuman(data) {
       const container = document.getElementById('needsHumanContainer');
+      if (!container) return;
       container.innerHTML = '';
 
+      const safeData = data || {};
       const items = [];
 
       // Include layout shift flags (> 5px movements)
-      (data.layoutFlags || []).forEach((flag) => {
+      (safeData.layoutFlags || []).forEach((flag) => {
+        if (!flag) return;
+        const dx = flag.shift?.dx ?? 0;
+        const dy = flag.shift?.dy ?? 0;
         items.push({
-          title: `Layout Movement Alert (${flag.selector})`,
-          desc: `Element shifted horizontally by ${flag.shift.dx}px and vertically by ${flag.shift.dy}px (threshold is 5px). Verify visual integrity.`,
+          title: `Layout Movement Alert (${flag.selector || 'Element'})`,
+          desc: `Element shifted horizontally by ${dx}px and vertically by ${dy}px (threshold is 5px). Verify visual integrity.`,
           badge: 'VISUAL SHIFT',
         });
       });
 
       // Include prioritized review items
-      (data.needsHuman || []).forEach((item) => {
+      (safeData.needsHuman || []).forEach((item) => {
+        if (!item) return;
         items.push({
           title: `Manual Audit Recommended (${item.selector || 'Element'})`,
-          desc: item.reason,
+          desc: item.reason || 'Requires manual verification.',
           badge: 'FLAGGED',
         });
       });
@@ -1032,6 +1062,18 @@
       runBtn.disabled = true;
       runBtn.querySelector('span:last-child').textContent = 'Running...';
 
+      if (useCache) {
+        const fallbackNotice = document.getElementById('fallbackNotice');
+        const fallbackIcon = document.getElementById('fallbackIcon');
+        const textSpan = document.getElementById('fallbackText');
+        if (fallbackNotice) {
+          fallbackNotice.className = 'result-banner info';
+          if (fallbackIcon) fallbackIcon.textContent = 'ℹ️';
+          if (textSpan) textSpan.textContent = 'Replaying a saved run (cached demo)';
+          fallbackNotice.style.display = 'flex';
+        }
+      }
+
       try {
         const res = await fetch('/run', {
           method: 'POST',
@@ -1064,12 +1106,26 @@
           if (fallbackNotice) {
             try {
               const payload = JSON.parse(evt.data);
-              if (payload.message) {
-                const textSpan = document.getElementById('fallbackText');
-                if (textSpan) textSpan.textContent = payload.message;
+              const fallbackIcon = document.getElementById('fallbackIcon');
+              const textSpan = document.getElementById('fallbackText');
+
+              if (payload.reason === 'user_cached') {
+                fallbackNotice.className = 'result-banner info';
+                if (fallbackIcon) fallbackIcon.textContent = 'ℹ️';
+                if (textSpan) textSpan.textContent = payload.message || 'Replaying a saved run (cached demo)';
+                fallbackNotice.style.display = 'flex';
+              } else if (payload.reason === 'auto_fallback') {
+                fallbackNotice.className = 'result-banner warning';
+                if (fallbackIcon) fallbackIcon.textContent = '⚠️';
+                if (textSpan) textSpan.textContent = payload.message || 'Live AI busy, replaying saved run';
+                fallbackNotice.style.display = 'flex';
+              } else {
+                fallbackNotice.className = 'result-banner warning';
+                if (fallbackIcon) fallbackIcon.textContent = '⚠️';
+                if (textSpan) textSpan.textContent = payload.message || 'Live AI busy, replaying saved run';
+                fallbackNotice.style.display = 'flex';
               }
             } catch {}
-            fallbackNotice.style.display = 'flex';
           }
         });
 
@@ -1079,26 +1135,46 @@
           runBtn.disabled = false;
           runBtn.querySelector('span:last-child').textContent = 'Run AccessFix';
 
-          runData = payload.data;
-          const result = payload.result;
+          runData = payload.data || {};
+          const result = payload.result || {};
 
-          // Update result banner
-          resultBanner.className = 'result-banner success';
-          resultBanner.style.display = 'flex';
-          bannerIcon.textContent = '✓';
-          bannerText.textContent = `Task completed in ${result.agentAfter?.steps || 5} steps`;
+          // 1.4 resultBanner must show the red failure state when result?.agentAfter?.success is false, and green only when true
+          const isSuccess = Boolean(result?.agentAfter?.success);
+          if (isSuccess) {
+            resultBanner.className = 'result-banner success';
+            resultBanner.style.display = 'flex';
+            bannerIcon.textContent = '✓';
+            bannerText.textContent = `Task completed in ${result?.agentAfter?.steps ?? 5} steps`;
+          } else {
+            resultBanner.className = 'result-banner failure';
+            resultBanner.style.display = 'flex';
+            bannerIcon.textContent = '✕';
+            bannerText.textContent = `Task failed: ${result?.agentAfter?.stuckAt || 'Goal could not be completed'}`;
+          }
 
-          // Update metric cards
-          metricAxe.textContent = `${result.axeBefore} → ${result.axeAfter}`;
-          metricAgent.textContent = `${result.agentBefore?.steps || 12} (Failed) → ${result.agentAfter?.steps || 5} (Passed)`;
-          metricFixes.textContent = `${result.fixesCount || 11}`;
+          // 1.3 use nullish coalescing for axeBefore and axeAfter
+          metricAxe.textContent = `${result?.axeBefore ?? 0} → ${result?.axeAfter ?? 0}`;
 
-          // Update tab contents
-          renderDiff(runData.diff);
+          // 1.2 metricAgent must show (Passed) or (Failed) from result.agentBefore?.success
+          const beforeStatus = result?.agentBefore?.success ? '(Passed)' : '(Failed)';
+          const afterStatus = result?.agentAfter?.success ? '(Passed)' : '(Failed)';
+          metricAgent.textContent = `${result?.agentBefore?.steps ?? 12} ${beforeStatus} → ${result?.agentAfter?.steps ?? 5} ${afterStatus}`;
+
+          // 1.1 use result?.fixesCount ?? 0
+          metricFixes.textContent = `${result?.fixesCount ?? 0}`;
+
+          // 1.6 & 1.7 guard renderDiff and renderNeedsHuman, and show message if 0 fixes
+          renderDiff(runData.diff, result?.fixesCount ?? 0);
           renderTranscripts(runData.transcripts);
           renderNeedsHuman(runData);
 
-          // Update live preview iframes
+          // 1.5 update live preview empty state and iframes
+          const previewEmptyState = document.getElementById('previewEmptyState');
+          const previewGrid = document.getElementById('previewGrid');
+          if (previewEmptyState && previewGrid) {
+            previewEmptyState.style.display = 'none';
+            previewGrid.style.display = 'grid';
+          }
           beforeIframe.src = `/preview/${activeRunId}/before`;
           afterIframe.src = `/preview/${activeRunId}/after`;
 
@@ -1107,6 +1183,14 @@
         });
 
         eventSource.addEventListener('error', (evt) => {
+          // 2.5 if the stream errors or drops, turn any running stage card to failed
+          Object.keys(stageElements).forEach((st) => {
+            const card = stageElements[st];
+            if (card && card.classList.contains('running')) {
+              updateStageUI(st, 'failed', 'Execution interrupted');
+            }
+          });
+
           try {
             const payload = JSON.parse(evt.data);
             resultBanner.className = 'result-banner failure';
@@ -1122,6 +1206,13 @@
           runBtn.querySelector('span:last-child').textContent = 'Run AccessFix';
         });
       } catch (err) {
+        // 2.5 if the stream errors or drops, turn any running stage card to failed
+        Object.keys(stageElements).forEach((st) => {
+          const card = stageElements[st];
+          if (card && card.classList.contains('running')) {
+            updateStageUI(st, 'failed', 'Execution failed');
+          }
+        });
         resultBanner.className = 'result-banner failure';
         bannerIcon.textContent = '✕';
         bannerText.textContent = err.message;

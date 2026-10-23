@@ -191,7 +191,13 @@ export async function scanPage(urlOrPath, siteName) {
     const page = await context.newPage();
 
     // Navigate to target
-    await page.goto(targetUrl, { waitUntil: 'networkidle' });
+    // 2.6 in src/scanner.js use waitUntil 'domcontentloaded' with a 15000 ms timeout, then wait up to 3 seconds for network idle without failing
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    try {
+      await page.waitForLoadState('networkidle', { timeout: 3000 });
+    } catch {
+      // Ignore network idle timeout if background requests persist
+    }
 
     // Step 2: Axe scan
     const axeViolations = await runAxeScan(page);

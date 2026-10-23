@@ -91,13 +91,18 @@ function validateInputTarget(input) {
   return { type: 'file', target: relative, siteName: baseName };
 }
 
-// Emits Server-Sent Event to all active clients for a run
+// Emits Server-Sent Event to all active clients for a run and records event history
 function emitRunEvent(run, eventName, payload) {
   const data = JSON.stringify({
     runId: run.runId,
     timestamp: new Date().toISOString(),
     ...payload,
   });
+
+  if (!run.eventHistory) {
+    run.eventHistory = [];
+  }
+  run.eventHistory.push({ eventName, data });
 
   run.clients.forEach((client) => {
     try {
@@ -172,128 +177,49 @@ async function replayCachedRun(run, { isFallback = false } = {}) {
     const raw = await fs.readFile(runJsonPath, 'utf-8');
     runJson = JSON.parse(raw);
   } catch (err) {
-    console.warn(`[server] Could not load ${runJsonPath}: ${err.message}. Generating synthesized replay.`);
+    console.warn(`[server] Could not load ${runJsonPath}: ${err.message}.`);
   }
 
-  if (runJson && Array.isArray(runJson.events) && runJson.events.length > 0) {
-    for (const evt of runJson.events) {
-      // Realistic delay between 0.5s and 2s per stage
-      const delay = Math.min(2000, Math.max(500, evt.delayMs || 800));
-      await new Promise((resolve) => setTimeout(resolve, delay));
+  // 2.2 replayCachedRun must read cache/<siteName>/run.json. If it does not exist, show a clear notice that no saved run exists for this site (never replay the broken run for another site).
+  if (!runJson || !Array.isArray(runJson.events) || runJson.events.length === 0) {
+    run.status = 'failed';
+    const notice = `No saved run cache found for site "${run.siteName}". Please run a live analysis first or record a cache with "npm run record".`;
+    console.warn(`[server] ${notice}`);
+    emitRunEvent(run, 'error', {
+      status: 'failed',
+      message: notice,
+    });
+    return;
+  }
 
-      if (evt.event === 'stage') {
-        emitRunEvent(run, 'stage', evt.payload);
-      } else if (evt.event === 'complete') {
-        const cachedData = evt.data || (await loadCachedRunData(run.siteName));
-        run.data = cachedData;
-        run.status = 'completed';
+  for (const evt of runJson.events) {
+    // Realistic delay between 0.5s and 2s per stage
+    const delay = Math.min(2000, Math.max(500, evt.delayMs || 800));
+    await new Promise((resolve) => setTimeout(resolve, delay));
 
-        emitRunEvent(run, 'complete', {
-          status: 'success',
-          result: evt.result || {
-            axeBefore: cachedData.axeBefore,
-            axeAfter: cachedData.axeAfter,
-            agentBefore: cachedData.agentBefore,
-            agentAfter: cachedData.agentAfter,
-            fixesCount: cachedData.ops?.length || 0,
-            layoutFlagsCount: cachedData.layoutFlags?.length || 0,
-            needsHumanCount: cachedData.needsHuman?.length || 0,
-          },
-          data: cachedData,
-        });
-      } else {
-        emitRunEvent(run, evt.event, evt.payload || {});
-      }
+    if (evt.event === 'stage') {
+      emitRunEvent(run, 'stage', evt.payload);
+    } else if (evt.event === 'complete') {
+      const cachedData = evt.data || (await loadCachedRunData(run.siteName));
+      run.data = cachedData;
+      run.status = 'completed';
+
+      emitRunEvent(run, 'complete', {
+        status: 'success',
+        result: evt.result || {
+          axeBefore: cachedData.axeBefore,
+          axeAfter: cachedData.axeAfter,
+          agentBefore: cachedData.agentBefore,
+          agentAfter: cachedData.agentAfter,
+          fixesCount: cachedData.ops?.length || 0,
+          layoutFlagsCount: cachedData.layoutFlags?.length || 0,
+          needsHumanCount: cachedData.needsHuman?.length || 0,
+        },
+        data: cachedData,
+      });
+    } else {
+      emitRunEvent(run, evt.event, evt.payload || {});
     }
-  } else {
-    // Fallback if run.json is missing or invalid: simulate from individual cache files
-    emitRunEvent(run, 'stage', {
-      stage: 'scan',
-      status: 'running',
-      message: 'Running Axe WCAG audit and capturing keyboard navigation snapshot...',
-    });
-    await new Promise((r) => setTimeout(r, 600));
-
-    emitRunEvent(run, 'stage', {
-      stage: 'scan',
-      status: 'completed',
-      message: 'Scan complete: 7 WCAG violations detected. Keyboard trap identified on Subscribe div.',
-      data: { axeBefore: 7 },
-    });
-
-    emitRunEvent(run, 'stage', {
-      stage: 'task',
-      status: 'running',
-      message: 'Discovering primary user goal on the page...',
-    });
-    await new Promise((r) => setTimeout(r, 600));
-
-    emitRunEvent(run, 'stage', {
-      stage: 'task',
-      status: 'completed',
-      message: 'Discovered goal: "Subscribe to the newsletter with an email".',
-      data: { task: 'Subscribe to the newsletter with an email' },
-    });
-
-    emitRunEvent(run, 'stage', {
-      stage: 'agent',
-      status: 'running',
-      message: 'Simulating blind user keyboard traversal on original broken page...',
-    });
-    await new Promise((r) => setTimeout(r, 700));
-
-    emitRunEvent(run, 'stage', {
-      stage: 'agent',
-      status: 'completed',
-      message: 'Initial run FAILED at step 12. Focus looped 4 times; Subscribe control is not keyboard-focusable.',
-      data: { success: false, steps: 12 },
-    });
-
-    emitRunEvent(run, 'stage', {
-      stage: 'fix',
-      status: 'running',
-      message: 'Prioritizing barriers and synthesizing semantic repair operations...',
-    });
-    await new Promise((r) => setTimeout(r, 800));
-
-    emitRunEvent(run, 'stage', {
-      stage: 'fix',
-      status: 'completed',
-      message: 'Generated 11 repairs (semantic button, labels, high contrast, landmarks, alt text).',
-      data: { fixesApplied: 11 },
-    });
-
-    emitRunEvent(run, 'stage', {
-      stage: 'verify',
-      status: 'running',
-      message: 'Measuring layout shifts and re-verifying with Blind Agent on patched working copy...',
-    });
-    await new Promise((r) => setTimeout(r, 900));
-
-    const cachedData = await loadCachedRunData(run.siteName);
-    run.data = cachedData;
-    run.status = 'completed';
-
-    emitRunEvent(run, 'stage', {
-      stage: 'verify',
-      status: 'completed',
-      message: 'Verification PASSED. 0 Axe violations remaining. Blind Agent achieved goal in 5 steps!',
-      data: { axeAfter: 0, agentAfterSteps: 5 },
-    });
-
-    emitRunEvent(run, 'complete', {
-      status: 'success',
-      result: {
-        axeBefore: run.data.axeBefore,
-        axeAfter: run.data.axeAfter,
-        agentBefore: run.data.agentBefore,
-        agentAfter: run.data.agentAfter,
-        fixesCount: run.data.ops.length,
-        layoutFlagsCount: run.data.layoutFlags.length,
-        needsHumanCount: run.data.needsHuman.length,
-      },
-      data: run.data,
-    });
   }
 }
 
@@ -305,8 +231,14 @@ async function executePipeline(run) {
   const shouldReplay = isDemoCache || run.useCache;
 
   if (shouldReplay) {
+    // User ticked 'Use cached demo' or DEMO_CACHE=true in .env
+    emitRunEvent(run, 'fallback', {
+      reason: 'user_cached',
+      message: 'Replaying a saved run (cached demo)',
+    });
+
     try {
-      await replayCachedRun(run);
+      await replayCachedRun(run, { reason: 'user_cached' });
     } catch (err) {
       console.error(`[server] Cache replay error:`, err);
       run.status = 'failed';
@@ -390,9 +322,35 @@ async function executePipeline(run) {
       data: run.data,
     });
   } catch (liveErr) {
-    console.warn(`[server] Live execution failed (${liveErr.message}). Falling back to cached run...`);
-    // Emit fallback event for UI notification banner
+    console.warn(`[server] Live execution failed (${liveErr.message}). Checking for saved cache...`);
+
+    // 2.3 if live execution fails on a site with no cache, emit an error event with a clear message. Never claim success from an empty cache.
+    const cacheDir = await getSiteCacheDir(run.siteName);
+    const runJsonPath = path.join(cacheDir, 'run.json');
+    let hasCache = false;
+    try {
+      const raw = await fs.readFile(runJsonPath, 'utf-8');
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.events) && parsed.events.length > 0) {
+        hasCache = true;
+      }
+    } catch {
+      hasCache = false;
+    }
+
+    if (!hasCache) {
+      console.error(`[server] Live execution failed and no cached run exists for site "${run.siteName}".`);
+      run.status = 'failed';
+      emitRunEvent(run, 'error', {
+        status: 'failed',
+        message: `Live execution failed: ${liveErr.message}. No saved demo run exists for "${run.siteName}".`,
+      });
+      return;
+    }
+
+    // Emit fallback event for UI notification banner (automatic fallback)
     emitRunEvent(run, 'fallback', {
+      reason: 'auto_fallback',
       message: 'Live AI busy, replaying saved run',
       error: liveErr.message,
     });
@@ -536,7 +494,7 @@ app.get('/health', async (req, res) => {
 app.post('/run', async (req, res) => {
   try {
     const { url, useCache } = req.body || {};
-    const validated = validateInputTarget(url || 'demo-sites/broken.html');
+    const validated = validateInputTarget(url?.trim() || 'demo-sites/broken.html');
     const isDemoCache = process.env.DEMO_CACHE === 'true';
 
     const runId = crypto.randomUUID();
@@ -586,6 +544,15 @@ app.get('/events', (req, res) => {
   });
 
   res.write(`event: connected\ndata: ${JSON.stringify({ runId, status: run.status })}\n\n`);
+
+  // Deliver any events that were emitted prior to SSE connection
+  if (run.eventHistory && run.eventHistory.length > 0) {
+    run.eventHistory.forEach(({ eventName, data }) => {
+      try {
+        res.write(`event: ${eventName}\ndata: ${data}\n\n`);
+      } catch {}
+    });
+  }
 
   run.clients.push(res);
 
@@ -658,9 +625,49 @@ app.get('/preview/:runId/:version', async (req, res) => {
       return res.send(html);
     }
 
-    return res.status(400).send('Version must be "before" or "after".');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.status(400).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #F9FAFB; color: #374151; text-align: center; padding: 24px; box-sizing: border-box; }
+    .card { background: #FFFFFF; border: 2px dashed #D1D5DB; border-radius: 12px; padding: 36px 28px; max-width: 440px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .icon { font-size: 36px; margin-bottom: 12px; }
+    h2 { font-size: 18px; margin: 0 0 8px 0; color: #111827; }
+    p { font-size: 14px; margin: 0; color: #6B7280; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon" aria-hidden="true">⚠️</div>
+    <h2>Invalid Preview Version</h2>
+    <p>Version parameter must be "before" or "after".</p>
+  </div>
+</body>
+</html>`);
   } catch (err) {
-    return res.status(404).send(`Preview not available: ${err.message}`);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.status(404).send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #F9FAFB; color: #374151; text-align: center; padding: 24px; box-sizing: border-box; }
+    .card { background: #FFFFFF; border: 2px dashed #D1D5DB; border-radius: 12px; padding: 36px 28px; max-width: 440px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .icon { font-size: 36px; margin-bottom: 12px; }
+    h2 { font-size: 18px; margin: 0 0 8px 0; color: #111827; }
+    p { font-size: 14px; margin: 0; color: #6B7280; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon" aria-hidden="true">📄</div>
+    <h2>Preview Unavailable</h2>
+    <p>${err.message || 'The requested preview document could not be rendered.'}</p>
+  </div>
+</body>
+</html>`);
   }
 });
 

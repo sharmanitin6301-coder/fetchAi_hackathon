@@ -32,7 +32,7 @@ const SCRIPTED_SEQUENCES = {
 };
 
 // Inspects active element and extracts screen reader announcement data
-export async function observeFocusedElement(page) {
+export async function observeFocusedElement(page, { step = 1, lastAction = null } = {}) {
   const active = await page.evaluate(() => {
     const el = document.activeElement;
     if (!el || el === document.body || el === document.documentElement) {
@@ -89,7 +89,18 @@ export async function observeFocusedElement(page) {
     };
   });
 
-  const heard = active.role === 'none' ? 'No element focused' : `${active.role}, ${active.name}`;
+  // 1. Observation text: report 'Focus left the page content...' when no element is focused after Tab / Shift+Tab; keep 'No element focused' only for step 1
+  let heard;
+  if (active.role === 'none') {
+    if (step === 1) {
+      heard = 'No element focused';
+    } else {
+      heard = 'Focus left the page content. You reached the end of the page; pressing Tab again returns to the first element.';
+    }
+  } else {
+    heard = `${active.role}, ${active.name}`;
+  }
+
   const ariaSnapshot = (await page.locator('body').ariaSnapshot()).slice(0, 3000);
 
   return {
@@ -144,6 +155,8 @@ Allowed actions:
 - "ArrowUp"
 - "Type:<text>" (example: Type:user@example.com)
 
+When the focused element is a button or link whose name matches your goal (for example Subscribe or Submit), activate it with Enter or Space. Do not press Tab on it. If you already typed the required text, do not type it again.
+
 Return JSON ONLY matching:
 {
   "heard": "${observation.heard}",
@@ -154,7 +167,8 @@ Return JSON ONLY matching:
   try {
     const response = await callLLM({
       prompt,
-      systemPrompt: 'You are an accessibility blind agent navigating strictly by keyboard. Output JSON only: {heard, thought, action}.',
+      // 2. Append goal matching and text duplicate guidance to agent system prompt
+      systemPrompt: 'You are an accessibility blind agent navigating strictly by keyboard. Output JSON only: {heard, thought, action}. When the focused element is a button or link whose name matches your goal (for example Subscribe or Submit), activate it with Enter or Space. Do not press Tab on it. If you already typed the required text, do not type it again.',
     });
 
     return {
@@ -208,6 +222,9 @@ export async function runBlindAgent(page, task, options = {}) {
   const maxSteps = options.maxSteps || 40;
   const siteName = options.siteName || 'broken';
   const runType = options.runType || 'before';
+  // 3. Add a retries option (default 1)
+  const retries = options.retries !== undefined ? options.retries : 1;
+  const maxAttempts = 1 + Math.max(0, retries);
 
   const geminiCheck = await validateLLMConfig('gemini');
   const groqCheck = await validateLLMConfig('groq');
@@ -216,73 +233,102 @@ export async function runBlindAgent(page, task, options = {}) {
 
   const siteKey = (siteName.includes('fixed') || runType === 'after') ? 'fixed' : 'broken';
   const transcript = [];
-  const focusCounts = {};
-  let stuckAt = null;
   let isSuccess = false;
+  let stuckAt = null;
   let activeMode = forceScripted ? 'scripted' : 'llm';
 
-  console.log(`[blindAgent] Starting agent (mode: ${forceScripted ? 'scripted fallback' : 'autonomous LLM'}, maxSteps: ${maxSteps})...`);
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (attempt > 1) {
+      console.log(`\n[blindAgent] Run ended in FAIL. Starting fresh retry run (attempt ${attempt}/${maxAttempts}) on reloaded page...`);
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      try {
+        await page.waitForLoadState('networkidle', { timeout: 3000 });
+      } catch {}
+      await page.waitForTimeout(300);
+    } else {
+      console.log(`[blindAgent] Starting agent (attempt ${attempt}/${maxAttempts}, retries: ${retries}, mode: ${forceScripted ? 'scripted fallback' : 'autonomous LLM'}, maxSteps: ${maxSteps})...`);
+    }
 
-  for (let step = 1; step <= maxSteps; step++) {
-    // 1. OBSERVE
-    const observation = await observeFocusedElement(page);
+    // Fresh run: history cleared
+    const focusCounts = {};
+    let lastAction = null;
+    stuckAt = null;
+    isSuccess = false;
+    const attemptTranscript = [];
 
-    // Track repeated focus visits to detect focus loops or unreachable interactive elements
-    const focusKey = observation.selector;
-    if (focusKey !== 'body') {
-      focusCounts[focusKey] = (focusCounts[focusKey] || 0) + 1;
-      if (focusCounts[focusKey] >= 4) {
-        stuckAt = `Element '${focusKey}' (${observation.heard}) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex).`;
-        transcript.push({
-          step,
-          heard: observation.heard,
-          thought: `Focus loop detected on ${focusKey}. Stopping agent.`,
-          action: 'STOP',
-        });
+    for (let step = 1; step <= maxSteps; step++) {
+      // 1. OBSERVE
+      const observation = await observeFocusedElement(page, { step, lastAction });
+
+      // Track repeated focus visits to detect focus loops or unreachable interactive elements
+      const focusKey = observation.selector;
+      if (focusKey !== 'body') {
+        focusCounts[focusKey] = (focusCounts[focusKey] || 0) + 1;
+        if (focusCounts[focusKey] >= 4) {
+          stuckAt = `Element '${focusKey}' (${observation.heard}) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex).`;
+          const loopEntry = {
+            attempt,
+            step,
+            heard: observation.heard,
+            thought: `Focus loop detected on ${focusKey}. Stopping agent.`,
+            action: 'STOP',
+          };
+          attemptTranscript.push(loopEntry);
+          transcript.push(loopEntry);
+          break;
+        }
+      }
+
+      // 2. THINK
+      const decision = await decideNextAction({
+        task,
+        observation,
+        recentActions: attemptTranscript,
+        stepIndex: step - 1,
+        siteKey,
+        forceScripted,
+      });
+
+      if (decision.mode !== 'llm') {
+        activeMode = decision.mode;
+        forceScripted = true; // Stay in fallback if LLM failed
+      }
+
+      const stepEntry = {
+        attempt,
+        step,
+        heard: decision.heard,
+        thought: decision.thought,
+        action: decision.action,
+      };
+      attemptTranscript.push(stepEntry);
+      transcript.push(stepEntry);
+
+      console.log(`  [Attempt ${attempt}] Step ${step}:`);
+      console.log(`    Heard:   "${decision.heard}"`);
+      console.log(`    Thought: ${decision.thought}`);
+      console.log(`    Action:  ${decision.action}`);
+
+      // 3. ACT
+      await executeKeyboardAction(page, decision.action);
+      lastAction = decision.action;
+
+      // 4. CHECK
+      isSuccess = await checkSuccess(page, task.success);
+      if (isSuccess) {
+        console.log(`  [SUCCESS] Goal achieved at step ${step} (attempt ${attempt})!`);
         break;
       }
     }
 
-    // 2. THINK
-    const decision = await decideNextAction({
-      task,
-      observation,
-      recentActions: transcript,
-      stepIndex: step - 1,
-      siteKey,
-      forceScripted,
-    });
-
-    if (decision.mode !== 'llm') {
-      activeMode = decision.mode;
-      forceScripted = true; // Stay in fallback if LLM failed
+    if (!isSuccess && !stuckAt) {
+      stuckAt = `Reached maximum step limit (${maxSteps}) without achieving success condition.`;
     }
 
-    transcript.push({
-      step,
-      heard: decision.heard,
-      thought: decision.thought,
-      action: decision.action,
-    });
-
-    console.log(`  Step ${step}:`);
-    console.log(`    Heard:   "${decision.heard}"`);
-    console.log(`    Thought: ${decision.thought}`);
-    console.log(`    Action:  ${decision.action}`);
-
-    // 3. ACT
-    await executeKeyboardAction(page, decision.action);
-
-    // 4. CHECK
-    isSuccess = await checkSuccess(page, task.success);
+    // Stop if succeeded on current attempt
     if (isSuccess) {
-      console.log(`  [SUCCESS] Goal achieved at step ${step}!`);
       break;
     }
-  }
-
-  if (!isSuccess && !stuckAt) {
-    stuckAt = `Reached maximum step limit (${maxSteps}) without achieving success condition.`;
   }
 
   const result = {
@@ -306,10 +352,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const siteName = process.argv[3] || (targetPath.includes('fixed') ? 'fixed' : 'broken');
   const runType = process.argv[4] || (targetPath.includes('fixed') ? 'after' : 'before');
   const forceScriptedArg = process.argv.includes('--scripted');
+  const retriesArg = process.argv.find((a) => a.startsWith('--retries='));
+  const retries = retriesArg ? parseInt(retriesArg.split('=')[1], 10) : 1;
 
   console.log(`\n======================================================`);
   console.log(` AccessFix Blind Agent CLI Test`);
   console.log(` Target: ${targetPath} | Site: ${siteName} | Run: ${runType}`);
+  console.log(` Retries: ${retries}`);
   if (forceScriptedArg) console.log(` Flag: --scripted mode enabled`);
   console.log(`======================================================`);
 
@@ -336,11 +385,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       siteName,
       runType,
       maxSteps: 30,
+      retries,
       scriptedMode: forceScriptedArg,
     });
 
     console.log('\n--- Final Agent Summary ---');
-    console.log(`Status:  ${result.success ? 'SUCCESS' : 'FAILED'}`);
+    console.log(`Status:  ${result.success ? 'SUCCESS' : `FAILED - ${result.stuckAt || 'Goal could not be completed'}`}`);
     console.log(`Steps:   ${result.steps}`);
     console.log(`Mode:    ${result.mode}`);
     if (result.stuckAt) {

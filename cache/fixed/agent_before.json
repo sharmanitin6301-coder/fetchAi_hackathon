@@ -1,0 +1,73 @@
+{
+  "site": "fixed",
+  "stage": "agent_before",
+  "timestamp": "2026-10-23T05:50:22.945Z",
+  "data": {
+    "success": false,
+    "steps": 10,
+    "stuckAt": "Element '#emailInput' (textbox, Email address) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex).",
+    "mode": "llm",
+    "transcript": [
+      {
+        "step": 1,
+        "heard": "No element focused",
+        "thought": "I need to move focus from nowhere to the first focusable control, so I press Tab to start navigating toward the email field and subscribe button.",
+        "action": "Tab"
+      },
+      {
+        "step": 2,
+        "heard": "button, Close promo banner",
+        "thought": "Press Tab to move focus from the close button toward the email textbox",
+        "action": "Tab"
+      },
+      {
+        "step": 3,
+        "heard": "textbox, Email address",
+        "thought": "I need to focus the email textbox before I can type the address, so I will press Tab to move focus to it.",
+        "action": "Tab"
+      },
+      {
+        "step": 4,
+        "heard": "button, Subscribe",
+        "thought": "The focus is on the Subscribe button, but I need to enter an email first; moving back to the email textbox will let me type the address",
+        "action": "Shift+Tab"
+      },
+      {
+        "step": 5,
+        "heard": "textbox, Email address",
+        "thought": "I need to move focus back to the email textbox so I can type my address before activating Subscribe.",
+        "action": "Shift+Tab"
+      },
+      {
+        "step": 6,
+        "heard": "button, Close promo banner",
+        "thought": "I need to type my email into the Email address textbox before I can activate the Subscribe button",
+        "action": "Type:user@example.com"
+      },
+      {
+        "step": 7,
+        "heard": "button, Close promo banner",
+        "thought": "Need to move focus from the Close promo banner button toward the Subscribe button; the next focusable element is after this button, so press Tab",
+        "action": "Tab"
+      },
+      {
+        "step": 8,
+        "heard": "textbox, Email address",
+        "thought": "I have entered my email and need to activate the Subscribe button. Pressing Tab should move focus from the email field (or close promo banner) to the Subscribe button.",
+        "action": "Tab"
+      },
+      {
+        "step": 9,
+        "heard": "button, Subscribe",
+        "thought": "Move focus back to the Subscribe button so I can activate it after typing my email",
+        "action": "Shift+Tab"
+      },
+      {
+        "step": 10,
+        "heard": "textbox, Email address",
+        "thought": "Focus loop detected on #emailInput. Stopping agent.",
+        "action": "STOP"
+      }
+    ]
+  }
+}

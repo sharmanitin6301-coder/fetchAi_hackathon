@@ -207,7 +207,10 @@ export async function verify(url) {
     // Step 4: Make working copy of the page
     const cacheDir = await getSiteCacheDir(siteName);
     const workingCopyPath = path.join(cacheDir, 'working_copy.html');
-    const originalHtml = await fs.readFile(path.resolve(url.replace('file://', '')), 'utf-8');
+    // 2.1 in src/verifier.js, for http(s) URLs get the HTML with page.content() instead of fs.readFile
+    const originalHtml = /^https?:\/\//i.test(targetUrl || url)
+      ? await page.content()
+      : await fs.readFile(path.resolve(url.replace('file://', '')), 'utf-8');
     await fs.writeFile(workingCopyPath, originalHtml, 'utf-8');
 
     let rounds = 0;

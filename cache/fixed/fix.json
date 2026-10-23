@@ -1,0 +1,11 @@
+{
+  "site": "fixed",
+  "stage": "fix",
+  "timestamp": "2026-10-23T05:52:40.123Z",
+  "data": {
+    "site": "fixed",
+    "appliedOps": [],
+    "rejectedOps": [],
+    "needsHuman": []
+  }
+}
