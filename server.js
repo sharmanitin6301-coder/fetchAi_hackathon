@@ -661,21 +661,14 @@ app.post('/api/agent/runs', authenticateAgentToken, async (req, res) => {
   }
 });
 
-// GET /api/agent/runs/:runId — Authenticated API to poll status and retrieve final audit results
-app.get('/api/agent/runs/:runId', authenticateAgentToken, (req, res) => {
-  const { runId } = req.params;
-  const run = runs.get(runId);
-
-  if (!run) {
-    return res.status(404).json({ error: 'Run not found.' });
-  }
-
+// Formats run object into comprehensive status and terminal audit payload
+function getRunStatusPayload(run) {
   const runMode = run.mode || (run.useCache ? 'cached' : 'live');
   const isLive = !run.useCache;
   const isCached = Boolean(run.useCache);
 
   if (run.status === 'pending' || run.status === 'running') {
-    return res.status(200).json({
+    return {
       runId: run.runId,
       status: run.status,
       stage: run.stage || 'init',
@@ -686,11 +679,11 @@ app.get('/api/agent/runs/:runId', authenticateAgentToken, (req, res) => {
       target: run.url,
       useCache: run.useCache,
       createdAt: run.createdAt,
-    });
+    };
   }
 
   if (run.status === 'failed') {
-    return res.status(200).json({
+    return {
       runId: run.runId,
       status: 'failed',
       stage: run.stage || 'error',
@@ -702,7 +695,7 @@ app.get('/api/agent/runs/:runId', authenticateAgentToken, (req, res) => {
       error: run.error || 'Pipeline execution failed.',
       createdAt: run.createdAt,
       completedAt: run.completedAt || new Date().toISOString(),
-    });
+    };
   }
 
   // Completed status
@@ -715,7 +708,7 @@ app.get('/api/agent/runs/:runId', authenticateAgentToken, (req, res) => {
   const agentBefore = run.result?.agentBefore ?? run.data?.agentBefore ?? null;
   const agentAfter = run.result?.agentAfter ?? run.data?.agentAfter ?? null;
 
-  return res.status(200).json({
+  return {
     runId: run.runId,
     status: 'completed',
     stage: 'complete',
@@ -745,7 +738,19 @@ app.get('/api/agent/runs/:runId', authenticateAgentToken, (req, res) => {
     layoutFlags: run.data?.layoutFlags || [],
     needsHuman: run.data?.needsHuman || [],
     diff: run.data?.diff || '',
-  });
+  };
+}
+
+// GET /api/agent/runs/:runId — Authenticated API to poll status and retrieve final audit results
+app.get('/api/agent/runs/:runId', authenticateAgentToken, (req, res) => {
+  const { runId } = req.params;
+  const run = runs.get(runId);
+
+  if (!run) {
+    return res.status(404).json({ error: 'Run not found.' });
+  }
+
+  return res.status(200).json(getRunStatusPayload(run));
 });
 
 // POST /run — starts pipeline and returns runId (Browser dashboard endpoint)
@@ -795,6 +800,18 @@ app.post('/run', async (req, res) => {
   }
 });
 
+// GET /run/:runId — Poll status and retrieve terminal results for a run started via POST /run
+app.get('/run/:runId', (req, res) => {
+  const { runId } = req.params;
+  const run = runs.get(runId);
+
+  if (!run) {
+    return res.status(404).json({ error: 'Run not found.' });
+  }
+
+  return res.status(200).json(getRunStatusPayload(run));
+});
+
 // GET /events — Server-Sent Events stream for a run
 app.get('/events', (req, res) => {
   const { runId } = req.query;
@@ -804,11 +821,12 @@ app.get('/events', (req, res) => {
     return res.status(404).send('Run not found.');
   }
 
-  // Set SSE headers
+  // Set SSE headers (disable buffering on Render/Nginx reverse proxies)
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
+    'Cache-Control': 'no-cache, no-transform',
     Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no',
   });
 
   res.write(`event: connected\ndata: ${JSON.stringify({ runId, status: run.status })}\n\n`);

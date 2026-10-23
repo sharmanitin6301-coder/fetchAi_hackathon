@@ -9,6 +9,7 @@
     "test:live": "node scripts/run_live_test.js demo-sites/broken.html",
     "test:cached": "node scripts/test_cached_fixed.js",
     "test:fixed": "node scripts/test_cached_fixed.js",
+    "test:adapter": "python3 agentverse/test_adapter.py",
     "test": "node scripts/run_live_test.js demo-sites/broken.html"
   },
   "keywords": [],

@@ -40,6 +40,15 @@ if not os.getenv("ACCESSFIX_AGENT_TOKEN"):
                             os.environ[k] = v
             break
 
+# HTTP client import (prefer dedicated AccessFixClient from http_client.py)
+try:
+    from http_client import AccessFixClient
+except ImportError:
+    try:
+        from agentverse.http_client import AccessFixClient
+    except ImportError:
+        AccessFixClient = None
+
 # HTTP request client: prefer `requests` as specified, with graceful stdlib fallback
 try:
     import requests
@@ -126,14 +135,17 @@ def call_accessfix_api(method: str, path: str, payload: dict = None) -> dict:
 def trigger_and_poll_run(
     target: str,
     use_cache: bool = True,
-    timeout_sec: int = int(os.getenv("ACCESSFIX_TIMEOUT_SEC", "130")),
+    timeout_sec: int = int(os.getenv("ACCESSFIX_TIMEOUT_SEC", "120")),
     poll_interval: int = 2
 ) -> dict:
     """
-    Starts an accessibility repair run via POST /api/agent/runs and polls
-    GET /api/agent/runs/:runId until completion or timeout.
-    Reports real-time stage progress and captures exact failure stages and error messages.
+    Starts an accessibility repair run and waits for genuine terminal completion.
+    Uses AccessFixClient (supporting SSE and polling) with fallback to direct polling.
     """
+    if AccessFixClient is not None:
+        client = AccessFixClient(base_url=ACCESSFIX_API_URL, token=ACCESSFIX_AGENT_TOKEN)
+        return client.run_audit(target, use_cache=use_cache, timeout_sec=timeout_sec)
+
     mode_desc = "Cached Replay" if use_cache else "Live Execution"
     logger.info(f"Triggering AccessFix run for target='{target}' [{mode_desc}]...")
     init_data = call_accessfix_api("POST", "/api/agent/runs", {

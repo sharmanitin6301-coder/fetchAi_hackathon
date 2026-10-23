@@ -40,13 +40,16 @@ Deploying to Agentverse Hosted Agents requires zero local infrastructure for the
 3. Select **Hosted Agent** (or Blank Agent).
 
 ### Step 2: Paste Adapter Code
-1. Open the agent editor in Agentverse.
-2. Replace the editor contents with the code from `agentverse/agent.py`.
+1. In the Agentverse Hosted Agent file explorer:
+   - Create a file named `http_client.py` and paste the contents of `agentverse/http_client.py`.
+   - In `agent.py`, paste the contents of `agentverse/agent.py`.
+   *(Note: `agent.py` also includes self-contained fallbacks, but having `http_client.py` enables robust SSE event streaming and JSON status polling).*
 
 ### Step 3: Configure Agent Secrets
 In the Agentverse left sidebar, click **Secrets** and add the following keys:
-- `ACCESSFIX_API_URL`: The public URL where your AccessFix Node.js server is hosted (e.g. `https://your-accessfix-domain.com` or an ngrok/cloud tunnel URL).
+- `ACCESSFIX_API_URL`: The public URL where your AccessFix Node.js server is hosted (e.g. `https://fetchai-hackathon.onrender.com` or local tunnel).
 - `ACCESSFIX_AGENT_TOKEN`: The secure authorization token configured in your AccessFix server's `.env` (`ACCESSFIX_AGENT_TOKEN`).
+- `ACCESSFIX_TIMEOUT_SEC`: (Optional, default `120`) Overall timeout in seconds to wait for live pipeline completion.
 
 ### Step 4: Run the Agent
 Click **Start** or **Run**. Agentverse will compile the protocol manifest and register the agent on the Almanac.
