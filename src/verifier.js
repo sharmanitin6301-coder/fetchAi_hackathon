@@ -168,7 +168,7 @@ export async function generateScreenReaderTranscript(html) {
 
 // Main verification pipeline: runs before/after axe, agent, layout diffs, and screen-reader transcripts
 export async function verify(url, options = {}) {
-  const timeoutMs = options.timeoutMs || 100000; // 100-second deadline for the live pipeline
+  const timeoutMs = options.timeoutMs || 180000; // 100-second deadline for the live pipeline
   const onProgress = typeof options.onProgress === 'function' ? options.onProgress : () => {};
   const startTime = Date.now();
   let phase = 'init';

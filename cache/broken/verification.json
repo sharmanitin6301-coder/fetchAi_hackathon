@@ -1,19 +1,19 @@
 {
   "site": "broken",
   "stage": "verification",
-  "timestamp": "2026-10-23T14:51:52.902Z",
+  "timestamp": "2026-10-24T03:01:23.976Z",
   "data": {
     "rounds": 1,
     "axeBefore": 7,
     "axeAfter": 0,
     "agentBefore": {
       "success": false,
-      "steps": 20,
-      "stuckAt": "Element '#emailInput' (textbox, unlabelled) focused 4 times without completing task. Target Subscribe control is unreachable via keyboard (non-focusable <div> with no tabindex)."
+      "steps": 14,
+      "stuckAt": "Agent attempt 2 timed out after 25s without achieving success."
     },
     "agentAfter": {
       "success": true,
-      "steps": 5,
+      "steps": 6,
       "stuckAt": null
     },
     "layoutFlags": [
